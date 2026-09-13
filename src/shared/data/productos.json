@@ -1,0 +1,38 @@
+[
+  {
+    "id": "chiliguaro",
+    "nombre": "Chiliguaro",
+    "resumen": "El clásico. Picante, ácido y bien frío.",
+    "descripcion": "Guaro, tomate, limón y chile en la proporción que se afinó desde el 2020. Se sirve helado, de un solo golpe, con la escarcha de sal todavía en el borde. Es el shot con el que arranca cualquier plan en Costa Rica.",
+    "notas": ["Guaro", "Tomate", "Limón", "Chile", "Sal"],
+    "color": "chiliguaro",
+    "precio": null,
+    "litros": 1,
+    "disponible": true,
+    "imagen": null
+  },
+  {
+    "id": "miguelito",
+    "nombre": "Miguelito",
+    "resumen": "Coco y leche. El de la playa.",
+    "descripcion": "Guaro con agua de coco y un toque de leche condensada, batido y servido sobre hielo. Es el shot de los bares de arena, el que se toma despacio y engaña porque entra dulce.",
+    "notas": ["Guaro", "Agua de coco", "Leche condensada"],
+    "color": "miguelito",
+    "precio": null,
+    "litros": 1,
+    "disponible": true,
+    "imagen": null
+  },
+  {
+    "id": "sangria",
+    "nombre": "Sangría",
+    "resumen": "Vino y fruta. La que se lleva bien con todos.",
+    "descripcion": "Vino tinto macerado con fruta hasta que deja de saber a vino y empieza a saber a fiesta. Es la que pide quien no quiere picante y la que se acaba primero en las fiestas.",
+    "notas": ["Vino tinto", "Fruta de temporada", "Cítricos"],
+    "color": "sangria",
+    "precio": null,
+    "litros": 1,
+    "disponible": true,
+    "imagen": null
+  }
+]

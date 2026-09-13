@@ -1,0 +1,26 @@
+[
+  {
+    "ano": "2020",
+    "titulo": "Nace Ticoshot",
+    "texto": "En una cocina de San Ramón de Alajuela sale el primer litro de chiliguaro. La etiqueta lo dice desde entonces: hecho con amor desde el 2020.",
+    "confirmado": true
+  },
+  {
+    "ano": "Por confirmar",
+    "titulo": "Llegan el Miguelito y la Sangría",
+    "texto": "El chiliguaro deja de estar solo. Falta que el dueño cuente en qué momento pasó y por qué esos dos y no otros.",
+    "confirmado": false
+  },
+  {
+    "ano": "Por confirmar",
+    "titulo": "La primera fiesta grande",
+    "texto": "El salto de vender litros sueltos a surtir un evento entero. Falta la historia real: qué fiesta fue y cuántos litros salieron.",
+    "confirmado": false
+  },
+  {
+    "ano": "Hoy",
+    "titulo": "Tres litros, sin local y a domicilio",
+    "texto": "Chiliguaro, Miguelito y Sangría, cada uno en presentación de litro. No hay local: se trabaja por encargo y se entrega.",
+    "confirmado": true
+  }
+]

@@ -1,0 +1,551 @@
+@import "tailwindcss";
+
+/*
+  ============================================================================
+  Paleta Ticoshot — reparto 70/30/10
+  ============================================================================
+  Direccion: FIESTA PLAYERA PREMIUM. Lo premium lo da el oficio —tipografia,
+  olas, micro-interacciones—, no la oscuridad. Un fondo negro de licoreria
+  fina se pelearia con la identidad coral que su gente ya conoce en Instagram
+  y con unas botellas PET de litro.
+
+  CONTRASTE MEDIDO, no estimado:
+
+    sobre crema #FFF4EC
+      texto      #2A1410  -> 15.5:1   cuerpo
+      texto-suave#6B4A3E  ->  7.26:1  secundario
+      acento     #D32027  ->  4.85:1  APENAS pasa AA. Nunca por debajo de 16px
+      sangria    #6E1B3E  -> 10.30:1  pasa como texto, aunque se usa decorativo
+      miguelito  #1F91AE  ->  3.40:1  NO PASA como texto normal. Decorativo
+
+    sobre coral #FF8A5B
+      texto      #2A1410  ->  7.51:1  asi va el titular del hero
+      blanco     #FFFFFF  ->  2.32:1  NO PASA. Ver el aviso de abajo
+      acento     #D32027  ->  2.26:1  NO PASA
+
+    sobre el rojo del logo #D32027
+      blanco     #FFFFFF  ->  5.24:1  asi va el texto de los botones
+
+  EL AVISO QUE IMPORTA: en sus posts de Instagram el texto es BLANCO SOBRE
+  CORAL, y eso mide 2,32:1 cuando AA exige 4,5:1. Por eso los titulares del
+  hero van en marron oscuro sobre el coral, y el blanco solo se usa encima del
+  rojo del logo. El sitio NO se ve identico a su Instagram, y es a proposito.
+  Cualquier combinacion nueva se mide antes de darla por buena.
+  ============================================================================
+*/
+/*
+  ============================================================================
+  POR QUE EL COLOR DE FONDO SE LLAMA `crema` Y NO `base`
+  ============================================================================
+  Se llamaba `--color-base`, como en la plantilla. Tailwind v4 genera una
+  utilidad de color por cada token de `@theme`, asi que eso creaba `text-base`
+  COMO COLOR — y `text-base` ya existe en Tailwind como TAMANO DE FUENTE. La
+  de color gana.
+
+  El resultado: cada `text-base` del sitio pintaba el texto de color crema. En
+  este proyecto eran cuatro, y uno de ellos era el parrafo del hero sobre la
+  tarjeta blanca: texto crema sobre blanco, o sea invisible. No lo cazo el
+  build, ni el lint, ni las pruebas — lo cazo mirar la pagina.
+
+  REGLA: ningun token de color puede llamarse igual que una escala de Tailwind.
+  Prohibidos como nombre de color: base, sm, lg, xl, none, full, auto.
+  ============================================================================
+*/
+@theme {
+  /* ---- 70% dominante: crema y el degradado de atardecer ---- */
+  --color-crema: #fff4ec;
+  --color-crema-alt: #ffe9dc;
+  --color-coral: #ff8a5b;
+  --color-coral-alt: #ffb07c;
+  --color-durazno: #f7c8b0;
+
+  /* ---- 30% secundario: superficies donde vive el contenido ---- */
+  --color-superficie: #ffffff;
+  --color-superficie-alt: #fbe7da;
+  --color-borde: #f0d3c2;
+
+  /* ---- 10% acento: CTAs, precios, badges, estado activo ---- */
+  --color-acento: #d32027;
+  --color-acento-alt: #b0181f;
+
+  /*
+    Colores de ETIQUETA. Identifican el producto en un filete, un punto o un
+    badge. NUNCA son fondo de seccion ni llevan texto encima: es la unica
+    forma de usar los tres sin romper el reparto, porque el acento del sitio
+    sigue siendo uno solo.
+  */
+  --color-chiliguaro: #d32027;
+  --color-miguelito: #1f91ae;
+  --color-sangria: #6e1b3e;
+
+  /* ---- garabatos de crayon de sus posts ---- */
+  --color-crayon: #7cc4e8;
+  --color-menta: #7fd4c1;
+  --color-estrella: #ffd43b;
+
+  /* ---- texto ---- */
+  --color-texto: #2a1410;
+  --color-texto-suave: #6b4a3e;
+
+  --font-display: var(--fuente-display), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--fuente-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--color-crema);
+  /*
+    `clip` y NO `hidden`, en html Y en body.
+
+    Las animaciones de entrada desplazan elementos hasta 32px fuera del borde,
+    y las olas y el marquee del hero viven desbordados a proposito. Mientras
+    estan afuera el documento gana ancho y aparece scroll horizontal.
+    Tenerlo solo en `body` no alcanza: html se ensancha igual.
+
+    `hidden` convertiria al elemento en contenedor de scroll y eso ROMPE
+    `position: sticky` en sus descendientes. `clip` recorta sin crear
+    contenedor de scroll.
+  */
+  overflow-x: clip;
+}
+
+body {
+  background: var(--color-crema);
+  color: var(--color-texto);
+  font-family: var(--font-sans);
+  overflow-x: clip;
+}
+
+/* ============================================================
+   EL HERO. Cero JavaScript.
+
+   Todo lo de aqui arranca en el primer pintado con @keyframes.
+   El observador de revelado vive en un useEffect, o sea despues
+   de hidratar: si el hero dependiera de el, su contenido
+   quedaria invisible hasta que llegue el JavaScript. Esa leccion
+   costo 4.401 ms de render delay en la plantilla.
+   ============================================================ */
+
+/*
+  Deriva de las olas.
+
+  El SVG lleva su path DUPLICADO y mide el doble de ancho; al correrlo un 50%
+  exacto el segundo ejemplar cae justo donde estaba el primero y el bucle no
+  tiene costura. Cualquier otro porcentaje deja un salto visible.
+*/
+@keyframes deriva-ola {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Vaiven vertical lento, para que las olas no se lean como una cinta plana. */
+@keyframes mecer-ola {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, 6px, 0);
+  }
+}
+
+.ola {
+  /* Doble de ancho: aqui viven los dos ejemplares del path. */
+  width: 200%;
+  animation: deriva-ola var(--ola-duracion, 24s) linear infinite;
+  will-change: transform;
+}
+
+/*
+  La banda de botellas. Izquierda -> derecha, como pidio el cliente.
+
+  Va de -50% a 0 y no de 0 a 50%: asi el primer fotograma ya tiene contenido
+  cubriendo el borde izquierdo. Al reves la banda entra vacia y se ve el hueco
+  durante el primer ciclo.
+*/
+@keyframes marquee-derecha {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.marquee-pista {
+  width: max-content;
+  animation: marquee-derecha var(--marquee-duracion, 38s) linear infinite;
+  will-change: transform;
+}
+
+/* Al pasar el cursor la banda se detiene: deja mirar una botella. */
+.marquee:hover .marquee-pista {
+  animation-play-state: paused;
+}
+
+/* Flotacion de la tarjeta del hero. Amplitud chica: mas se lee como error. */
+@keyframes flotar {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -9px, 0);
+  }
+}
+
+.flota {
+  animation: flotar 6s ease-in-out infinite;
+}
+
+/* Garabatos de crayon: entran dibujandose y se quedan. */
+@keyframes garabato-entra {
+  from {
+    opacity: 0;
+    transform: scale(0.85) rotate(-6deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+.garabato {
+  animation: garabato-entra 0.9s cubic-bezier(0.22, 1, 0.36, 1)
+    var(--garabato-retraso, 0s) both;
+}
+
+/* Destello de las estrellitas. Desfasadas para que no latan a coro. */
+@keyframes destello {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15) rotate(15deg);
+  }
+}
+
+.destella {
+  animation: destello 3.4s ease-in-out var(--destello-retraso, 0s) infinite;
+}
+
+/* ============================================================
+   Reaccion al scroll, en CSS nativo.
+
+   `animation-timeline: scroll()` no necesita JavaScript: el
+   navegador ata el progreso de la animacion a la barra de
+   desplazamiento y la corre en el compositor.
+
+   TODO va dentro de @supports. Donde no exista —Firefox al
+   escribir esto— el bloque se descarta y las animaciones de
+   arriba siguen corriendo en bucle. El respaldo NUNCA puede ser
+   "no se mueve nada": una pagina quieta se lee como rota.
+   ============================================================ */
+@supports (animation-timeline: scroll()) {
+  /* La tarjeta se corre y se desvanece mientras se baja. */
+  @keyframes card-al-bajar {
+    to {
+      transform: translate3d(14vw, -4vh, 0) scale(0.92);
+      opacity: 0;
+    }
+  }
+
+  /* Las olas se separan: la de adelante corre mas que la de atras. */
+  @keyframes ola-al-bajar {
+    to {
+      transform: translate3d(0, calc(var(--ola-parallax, 1) * 9vh), 0);
+    }
+  }
+
+  .card-scroll {
+    animation: card-al-bajar linear both;
+    animation-timeline: scroll(root);
+    /* Termina antes del final del hero: no debe desaparecer a mitad de la
+       seccion siguiente, donde ya nadie la esta mirando. */
+    animation-range: 0 75svh;
+  }
+
+  .ola-scroll {
+    animation: ola-al-bajar linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 100svh;
+  }
+}
+
+/* ============================================================
+   Barra lateral de redes
+   ============================================================ */
+.barra-social {
+  animation: barra-social-entra 0.8s ease-out 1s both;
+}
+
+/*
+  LA ANIMACION SOLO MUEVE EN X. El centrado vertical NO va aqui.
+
+  Tailwind v4 aplica `-translate-y-1/2` con la propiedad CSS `translate`, no
+  con `transform`. Son propiedades DISTINTAS y el navegador las compone: si el
+  keyframe tambien pone `translateY(-50%)`, la barra se corre el 100% de su
+  alto en vez del 50% y queda descuadrada hacia arriba.
+*/
+@keyframes barra-social-entra {
+  from {
+    opacity: 0;
+    transform: translateX(90px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.icono-social {
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+.icono-social:hover {
+  transform: scale(1.2) translateX(-5px);
+}
+.icono-social:active {
+  transform: scale(0.9);
+}
+
+/* ============================================================
+   Barra de desplazamiento con la marca.
+   Se declaran las DOS sintaxis: la estandar, que entiende
+   Firefox, y la de WebKit. Ninguna cubre a las dos familias.
+   ============================================================ */
+html {
+  scrollbar-color: var(--color-acento) var(--color-crema-alt);
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-crema-alt);
+  border-left: 1px solid var(--color-borde);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    var(--color-coral) 0%,
+    var(--color-acento) 60%,
+    var(--color-acento-alt) 100%
+  );
+  border-radius: 9999px;
+  /* El borde del color del riel deja el pulgar flotando, no pegado. */
+  border: 2px solid var(--color-crema-alt);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--color-crema-alt);
+}
+
+/* Los drawers llevan una barra mas discreta: no compiten con el contenido. */
+[role="dialog"] ::-webkit-scrollbar {
+  width: 7px;
+}
+[role="dialog"] ::-webkit-scrollbar-track {
+  background: transparent;
+  border: 0;
+}
+[role="dialog"] ::-webkit-scrollbar-thumb {
+  border-width: 1px;
+  border-color: transparent;
+}
+
+/* ============================================================
+   Revelado al entrar en pantalla.
+
+   Reparto de trabajo:
+     - CSS : el estado inicial, la transicion y el escalonado.
+     - JS  : una sola linea de verdad, `data-visible`, que pone
+             ObservadorRevelado con un IntersectionObserver.
+
+   Solo se animan opacity y transform: van en GPU y no provocan
+   reflow.
+   ============================================================ */
+.revelar {
+  --revelar-x: 0px;
+  --revelar-y: 0px;
+  --revelar-escala: 1;
+  --revelar-retraso: 0s;
+}
+
+.revelar-abajo {
+  --revelar-y: 28px;
+}
+.revelar-izquierda {
+  --revelar-x: -32px;
+}
+.revelar-derecha {
+  --revelar-x: 32px;
+}
+.revelar-escala {
+  --revelar-escala: 0.94;
+}
+
+/*
+  `scripting: enabled` es la clave de que esto sea seguro.
+
+  El estado oculto SOLO existe si hay JavaScript para revelarlo. Sin
+  JavaScript —o en un navegador que ni entienda esta consulta— el bloque
+  entero se descarta y el contenido queda visible y quieto. Nunca se puede dar
+  el caso de una pagina en blanco esperando un observador que no va a llegar.
+*/
+@media (scripting: enabled) {
+  .revelar {
+    opacity: 0;
+    transform: translate3d(var(--revelar-x), var(--revelar-y), 0)
+      scale(var(--revelar-escala));
+    transition:
+      opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--revelar-retraso),
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--revelar-retraso);
+  }
+
+  .revelar[data-visible="true"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .revelar-item {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0);
+    transition:
+      opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--revelar-retraso),
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--revelar-retraso);
+  }
+
+  .revelar-cascada[data-visible="true"] > .revelar-item {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+  SOBRE EL PLIEGUE no se usa el observador: una @keyframes arranca en el
+  primer pintado, sin JavaScript de por medio.
+*/
+@keyframes revelar-entrada {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--revelar-x), var(--revelar-y), 0)
+      scale(var(--revelar-escala));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.revelar-inmediato {
+  animation: revelar-entrada 0.6s cubic-bezier(0.22, 1, 0.36, 1)
+    var(--revelar-retraso) both;
+}
+
+/* ============================================================
+   Movimiento reducido.
+
+   Va AL FINAL del archivo a proposito: tiene que ganarle a todo
+   lo de arriba, incluidas las animaciones del hero y el bloque
+   de @supports. Una pagina con olas, marquee y flotacion
+   corriendo sin parar marea a gente real; no es un adorno.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /*
+    Las de bucle infinito se DETIENEN en su posicion inicial. Sin esto la
+    regla de arriba las hace correr un ciclo completo en 0,01ms y la banda
+    termina saltando de golpe al final del recorrido.
+  */
+  .ola,
+  .marquee-pista,
+  .flota,
+  .destella {
+    animation: none !important;
+  }
+
+  /* El contenido aparece ya colocado. No basta con acortar la duracion. */
+  .revelar,
+  .revelar-item,
+  .revelar-inmediato,
+  .garabato,
+  .card-scroll,
+  .ola-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   Puerta de edad.
+
+   El modal SIEMPRE esta en el HTML; quien decide si se ve es
+   CSS. Asi no hay estado de React y por tanto no hay desajuste
+   de hidratacion ni parpadeo para quien ya confirmo: el script
+   del <head> marca data-edad antes del primer pintado.
+   ============================================================ */
+.puerta-edad {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow-y: auto;
+  /* Sin esto, al llegar al final del modal el scroll sigue en la pagina de
+     atras y la puerta se queda flotando sobre un sitio que ya se movio. */
+  overscroll-behavior: contain;
+}
+
+/* Ya confirmo en una visita anterior. */
+html[data-edad="ok"] .puerta-edad {
+  display: none;
+}
+
+/*
+  SIN JAVASCRIPT. El boton es un ancla a #entrar, que es un <span> vacio justo
+  antes de la puerta en el layout. Al pulsarlo ese ancla pasa a ser el objetivo
+  y la puerta desaparece. No se recuerda entre visitas —no hay donde guardarlo—
+  pero abrirse se abre, que es lo que no puede fallar.
+*/
+#entrar:target ~ .puerta-edad {
+  display: none;
+}
+
+/*
+  El fondo no se desplaza mientras la puerta esta puesta.
+
+  `:has()` va detras de @supports porque si el navegador no lo entiende la
+  regla ENTERA se descarta —incluido el selector de body— y sin el guardia
+  algunos motores viejos podian quedarse con el overflow bloqueado.
+*/
+@supports selector(:has(*)) {
+  html:not([data-edad="ok"]) body:not(:has(#entrar:target)) {
+    overflow: hidden;
+  }
+}

@@ -1,0 +1,41 @@
+[
+  {
+    "producto": "chiliguaro",
+    "titulo": "Chiliguaro",
+    "temperatura": "Bien frío, casi congelado",
+    "vaso": "Shot, con sal en el borde",
+    "pasos": [
+      "Metelo al congelador una hora antes. Frío se toma; tibio se sufre.",
+      "Pasá el limón por el borde del vaso y volteálo sobre sal gruesa.",
+      "Servilo hasta el borde y tomálo de un solo golpe.",
+      "El limón se muerde después, no antes."
+    ],
+    "error": "Servirlo con hielo. El hielo lo aguada y le baja el picante, que es justo lo que fuiste a buscar."
+  },
+  {
+    "producto": "miguelito",
+    "titulo": "Miguelito",
+    "temperatura": "Frío, sobre hielo",
+    "vaso": "Shot o vaso bajo",
+    "pasos": [
+      "Agitá la botella antes de servir: la leche se asienta abajo.",
+      "Dos o tres hielos en el vaso.",
+      "Servilo encima y tomálo despacio.",
+      "Guardá la botella en hielera, no al sol."
+    ],
+    "error": "Confiarse porque entra dulce. El coco y la leche esconden el guaro, no lo quitan."
+  },
+  {
+    "producto": "sangria",
+    "titulo": "Sangría",
+    "temperatura": "Fría, de refrigeradora",
+    "vaso": "Vaso alto o copa",
+    "pasos": [
+      "Servila fría, con hielo si el día está caliente.",
+      "Una rodaja de naranja o limón encima.",
+      "Es la que mejor acompaña comida: sirve desde el principio.",
+      "Tapada y en frío aguanta bien lo que dure la fiesta."
+    ],
+    "error": "Dejarla al sol. Se calienta rápido y el vino pierde todo lo que la hace tomable."
+  }
+]

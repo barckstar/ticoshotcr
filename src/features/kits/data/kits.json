@@ -1,0 +1,26 @@
+[
+  {
+    "id": "hielera-completa",
+    "nombre": "La hielera completa",
+    "gancho": "Los tres litros. El que no falla.",
+    "descripcion": "Chiliguaro para los que empiezan fuerte, miguelito para los que van despacio y sangría para los que no toman picante. Con estos tres nadie se queda por fuera.",
+    "productos": ["chiliguaro", "miguelito", "sangria"],
+    "para": "De 12 a 20 personas"
+  },
+  {
+    "id": "playa",
+    "nombre": "Kit de playa",
+    "gancho": "Los de la arena.",
+    "descripcion": "El miguelito nació en los bares de playa y el chiliguaro es el que despierta a todo el mundo. Los dos aguantan la hielera todo el día.",
+    "productos": ["miguelito", "chiliguaro"],
+    "para": "De 8 a 14 personas"
+  },
+  {
+    "id": "sin-picante",
+    "nombre": "Kit sin picante",
+    "gancho": "Para los que no aguantan el chile.",
+    "descripcion": "Sangría y miguelito. Dulces los dos, y engañosos los dos. Es el que se pide cuando hay gente que no conoce el chiliguaro.",
+    "productos": ["sangria", "miguelito"],
+    "para": "De 8 a 14 personas"
+  }
+]

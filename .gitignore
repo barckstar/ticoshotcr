@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...menos la plantilla, que no lleva secretos y es lo que le dice a quien clone
+# el repo que variables hacen falta.
+!.env.example
 
 # vercel
 .vercel
@@ -40,8 +43,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# HTML crudo del sondeo de Facebook — scratch, no versionar
-research/*.html
 
 # ---- Agregados del proyecto ----
 
@@ -68,25 +69,13 @@ graphify-out/
 /playwright-report/
 *.lcov
 
-# Material de trabajo pesado que no pertenece al repo.
-# Las fotos originales sin optimizar viven aqui; al sitio solo suben las
-# versiones WebP ya recortadas de public/platos/.
-research/assets/*.png
-research/assets/*.jpeg
-!research/assets/logo_fb_profile.jpg
 
-# Temporales sueltos
-*.bak
-pagina_tmp.html
 
-# Material crudo de Instagram: son el insumo para las fotos de las promos.
-# Al sitio solo suben las versiones ya recortadas y en WebP de public/.
-research/assets/instagram/
 
-# Bitacora y config local de la herramienta: no se versiona.
-# La bitacora es material de trabajo interno, no del producto.
+# Config local de la herramienta: no se versiona.
 .claude/
 
-# Hojas de contacto que se arman para revisar un recorte a ojo. Son un paso
-# intermedio de verificacion, no material del sitio ni del sondeo.
-research/assets/pruebas/
+# Material crudo del cliente (fotos y videos originales sin optimizar).
+# Al sitio solo suben las versiones ya recortadas y en WebP de public/.
+research/
+
