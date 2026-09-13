@@ -1,11 +1,9 @@
 import type { MetadataRoute } from "next";
-
-const SITIO =
-  process.env.NEXT_PUBLIC_SITIO_URL ?? "https://ticoshot.vercel.app";
+import { SITIO_URL } from "@/shared/config/sitio";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: { userAgent: "*", allow: "/" },
-    sitemap: `${SITIO}/sitemap.xml`,
+    sitemap: `${SITIO_URL}/sitemap.xml`,
   };
 }

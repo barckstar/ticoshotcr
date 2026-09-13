@@ -1,5 +1,6 @@
 import type { WithContext, Thing, Organization, Product, FAQPage } from "schema-dts";
 import { negocio } from "@/shared/config/negocio";
+import { SITIO_URL } from "@/shared/config/sitio";
 import type { Producto } from "@/shared/types/producto";
 
 /**
@@ -27,9 +28,6 @@ export function EtiquetaJsonLd({ datos }: { datos: WithContext<Thing> }) {
   );
 }
 
-const SITIO =
-  process.env.NEXT_PUBLIC_SITIO_URL ?? "https://ticoshot.vercel.app";
-
 /**
  * El negocio.
  *
@@ -45,10 +43,10 @@ export function jsonLdNegocio(): WithContext<Organization> {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "@id": `${SITIO}#negocio`,
+    "@id": `${SITIO_URL}#negocio`,
     name: negocio.nombre,
     description: negocio.tagline,
-    url: SITIO,
+    url: SITIO_URL,
     telephone: `+${negocio.whatsapp}`,
     foundingDate: String(negocio.desde),
     areaServed: {

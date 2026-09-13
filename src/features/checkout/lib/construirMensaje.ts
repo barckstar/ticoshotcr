@@ -1,5 +1,6 @@
 import { formatoColones } from "@/shared/lib/formatoColones";
 import { negocio } from "@/shared/config/negocio";
+import { SITIO_URL } from "@/shared/config/sitio";
 import { medir, type MensajeMedido } from "@/shared/lib/whatsapp";
 import type { LineaCarrito } from "@/shared/types/carrito";
 import { etiquetaMetodoPago } from "../schema";
@@ -22,8 +23,7 @@ import { enlaceUbicacion } from "./direccionesGuardadas";
 
 /** El mensaje de contacto, si algun dia se enciende `modoMuestra`. */
 function construirMensajeContacto(): MensajeMedido {
-  const sitio = process.env.NEXT_PUBLIC_SITIO_URL ?? "https://ticoshot.vercel.app";
-  return medir(`${negocio.mensajeContacto}\n\n${sitio}`);
+  return medir(`${negocio.mensajeContacto}\n\n${SITIO_URL}`);
 }
 
 /**

@@ -348,6 +348,35 @@ Medido sobre el build de producción:
 > build de producción. Con los dos a la vez, los chunks en disco no son los que
 > sirve producción y las mediciones salen mal. Parar el dev antes de medir.
 
+## `??` es el operador equivocado para variables de entorno
+
+**Tumbó el despliegue en Vercel.** El error fue:
+
+```
+TypeError: Invalid URL
+  at metadataBase: new URL(SITIO)
+  code: 'ERR_INVALID_URL', input: ''
+```
+
+La línea era `process.env.NEXT_PUBLIC_SITIO_URL ?? "https://…"`, repetida en
+**cinco archivos**. `??` solo cae al valor por defecto con `null` o `undefined`,
+y una variable **definida pero vacía** es `""` — que no es ninguno de los dos.
+Pasa de largo, y `new URL("")` lanza.
+
+Y ese es el caso normal, no uno raro: quien crea la variable en el panel de
+Vercel y la deja sin rellenar obtiene exactamente `""`.
+
+Ahora vive en un solo sitio, `shared/config/sitio.ts`, y resuelve en orden:
+
+1. `NEXT_PUBLIC_SITIO_URL`, **si trae algo que de verdad parsea como URL**
+   (un dominio sin protocolo también se descarta, que es el error más común al
+   rellenar el panel). Se normaliza a `origin`.
+2. `VERCEL_PROJECT_PRODUCTION_URL` o `VERCEL_URL`, que Vercel pone solo y vienen
+   **sin protocolo**.
+3. Un valor fijo, para que nada se caiga nunca por un dato de configuración.
+
+`sitio.test.ts` cubre los ocho casos, incluido el exacto que rompió el build.
+
 ## Comandos
 
 ```bash
@@ -364,3 +393,13 @@ Build ✓ · 43 pruebas ✓ · lint ✓ · cero violaciones de arquitectura.
 
 **No publicar todavía:** faltan precios, reseñas reales y datos del negocio.
 Ver `PENDIENTE.md`.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

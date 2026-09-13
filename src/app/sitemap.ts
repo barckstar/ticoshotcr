@@ -1,7 +1,5 @@
 import type { MetadataRoute } from "next";
-
-const SITIO =
-  process.env.NEXT_PUBLIC_SITIO_URL ?? "https://ticoshot.vercel.app";
+import { SITIO_URL } from "@/shared/config/sitio";
 
 /**
  * El sitemap de un sitio de UNA sola ruta.
@@ -14,7 +12,7 @@ const SITIO =
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: SITIO,
+      url: SITIO_URL,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 1,

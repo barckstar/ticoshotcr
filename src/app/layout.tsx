@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit, Inter } from "next/font/google";
 import { negocio } from "@/shared/config/negocio";
+import { SITIO_URL } from "@/shared/config/sitio";
 import { productos, idsDeProductos } from "@/shared/data/productos";
 import { Navbar } from "@/shared/components/layout/Navbar";
 import { Footer } from "@/shared/components/layout/Footer";
@@ -38,11 +39,8 @@ const sans = Inter({
   display: "swap",
 });
 
-const SITIO =
-  process.env.NEXT_PUBLIC_SITIO_URL ?? "https://ticoshot.vercel.app";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(SITIO),
+  metadataBase: new URL(SITIO_URL),
   title: {
     default: `${negocio.nombre} | Chiliguaro, Miguelito y Sangría en ${negocio.ciudad}`,
     template: `%s | ${negocio.nombre}`,
