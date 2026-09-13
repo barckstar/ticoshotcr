@@ -377,6 +377,27 @@ Ahora vive en un solo sitio, `shared/config/sitio.ts`, y resuelve en orden:
 
 `sitio.test.ts` cubre los ocho casos, incluido el exacto que rompió el build.
 
+## SEO y metadatos
+
+- **`negocio.publicado` decide si Google puede indexar.** En `false` el sitio
+  manda `noindex` y el `robots.txt` bloquea a todos. Está así porque el sitio
+  todavía enseña "Consultar precio" y un aviso de "no publicar así": indexar eso
+  deja el fragmento de resultados con los marcadores durante semanas. Compartir
+  por WhatsApp funciona igual — Open Graph no pasa por ahí.
+- **Las URL del JSON-LD son ABSOLUTAS.** Lo leen rastreadores que no tienen el
+  contexto de la página: una ruta relativa ahí no la resuelve nadie.
+- **`Organization` lleva `logo`** — es lo que Google pone en el panel de
+  conocimiento; sin él sale el favicon recortado o nada.
+- **`Product` lleva `image`, y en las dos proporciones.** Es obligatoria para
+  que salga como resultado enriquecido: sin ella el producto se indexa pero
+  nunca aparece con foto, que es lo que hace que alguien haga clic.
+- **`formatDetection.telephone: false`.** Sin eso, Safari en iOS subraya como
+  enlace de llamada cualquier número del texto —el del pie, las cantidades de
+  las preguntas— y el sitio parece lleno de enlaces rotos.
+- **El manifiesto no es para hacer una PWA**, es para que el acceso directo en
+  la pantalla de inicio salga con el logo y no con una captura. Lleva un icono
+  `maskable` porque si no Android lo mete en un cuadrado blanco.
+
 ## Comandos
 
 ```bash

@@ -49,6 +49,28 @@ export function jsonLdNegocio(): WithContext<Organization> {
     url: SITIO_URL,
     telephone: `+${negocio.whatsapp}`,
     foundingDate: String(negocio.desde),
+
+    /*
+      EL LOGO ES LO QUE GOOGLE PONE EN EL PANEL DE CONOCIMIENTO. Sin el, sale
+      el favicon recortado o nada. Tiene que ser una URL ABSOLUTA: una ruta
+      relativa aqui no la resuelve nadie, porque el JSON-LD lo leen rastreadores
+      que no tienen el contexto de la pagina.
+    */
+    logo: `${SITIO_URL}/marca/icon-512.png`,
+    image: `${SITIO_URL}/marca/og.jpg`,
+
+    /*
+      El canal real de atencion. `contactType` con un valor del vocabulario de
+      schema.org —no texto libre— es lo que permite que Google lo entienda como
+      punto de contacto y no como un dato suelto.
+    */
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "sales",
+      telephone: `+${negocio.whatsapp}`,
+      availableLanguage: "Spanish",
+      areaServed: negocio.pais,
+    },
     areaServed: {
       "@type": "City",
       name: negocio.ciudad,
@@ -78,6 +100,27 @@ export function jsonLdProducto(producto: Producto): WithContext<Product> {
     brand: { "@type": "Brand", name: negocio.nombre },
     category: "Bebida alcohólica",
     size: `${producto.litros} L`,
+
+    /*
+      LA IMAGEN ES OBLIGATORIA para que Google muestre el producto como
+      resultado enriquecido. Sin ella el bloque se indexa pero nunca sale con
+      foto, que es justo lo que hace que alguien haga clic.
+
+      Van las DOS proporciones. Google recomienda 16:9, 4:3 y 1:1 para poder
+      elegir segun donde lo pinte; aqui existen la vertical y la cuadrada, asi
+      que se ofrecen las dos en vez de obligarlo a recortar una.
+
+      Absolutas por lo mismo que el logo: quien lee esto no tiene el contexto
+      de la pagina.
+    */
+    ...(producto.imagen
+      ? {
+          image: [
+            `${SITIO_URL}${producto.imagen.vertical.src}`,
+            `${SITIO_URL}${producto.imagen.cuadrada.src}`,
+          ],
+        }
+      : {}),
   };
 
   if (producto.precio === null) return base;

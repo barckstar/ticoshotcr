@@ -88,6 +88,34 @@ export const metadata: Metadata = {
     images: ["/marca/og.jpg"],
   },
   applicationName: negocio.nombre,
+
+  /*
+    Quien firma el sitio. Google los usa para el panel de conocimiento, y en
+    algunos lectores aparece como autor del contenido.
+  */
+  authors: [{ name: negocio.nombre, url: negocio.instagram }],
+  creator: negocio.nombre,
+  publisher: negocio.nombre,
+  category: "Bebidas",
+
+  /*
+    `telephone: false` apaga que iOS convierta CUALQUIER numero del texto en un
+    enlace de llamada. El telefono del sitio ya es un enlace de WhatsApp puesto
+    a mano; sin esto, Safari tambien subraya el "8943 9595" del pie y las
+    cantidades de las preguntas frecuentes, y se ve como si el sitio tuviera
+    enlaces rotos por todos lados.
+  */
+  formatDetection: { telephone: false, date: false, address: false },
+
+  manifest: "/manifest.webmanifest",
+
+  /* Al guardarlo en la pantalla de inicio de un iPhone. */
+  appleWebApp: {
+    capable: true,
+    title: negocio.nombre,
+    statusBarStyle: "default",
+  },
+
   icons: {
     icon: [
       { url: "/marca/icon.png", sizes: "32x32", type: "image/png" },
@@ -96,7 +124,15 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/marca/apple-icon.png", sizes: "180x180" }],
   },
-  robots: { index: true, follow: true },
+  /*
+    NOINDEX MIENTRAS NO ESTE PUBLICADO. Ver `negocio.publicado` — el sitio
+    todavia ensena marcadores de "por confirmar" que no deben salir en Google.
+    `nocache` y `noimageindex` ademas evitan que quede copia en cache y que las
+    fotos se indexen por su cuenta.
+  */
+  robots: negocio.publicado
+    ? { index: true, follow: true }
+    : { index: false, follow: false, nocache: true, noimageindex: true },
 };
 
 export const viewport: Viewport = {

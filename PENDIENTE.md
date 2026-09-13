@@ -145,6 +145,24 @@ se pueda discutir en vez de creerle a ciegas.
 
 ## 5. Despliegue
 
+### El interruptor que abre el sitio a Google
+
+`negocio.publicado` está en **`false`**, y con eso el sitio manda `noindex` y el
+`robots.txt` bloquea a todos los rastreadores.
+
+No es exceso de cautela: hoy los tres productos dicen *"Consultar precio"* y la
+sección de reseñas lleva un aviso rojo de *"no publicar así"*. Si Google indexa
+eso, el fragmento que sale en los resultados se queda con esos marcadores
+**durante semanas** aunque se corrijan — y lo lee gente decidiendo si compra.
+Y si mañana compran un dominio propio, el `.vercel.app` ya indexado compite con
+el nuevo como contenido duplicado.
+
+**Se abre poniéndolo en `true`** cuando estén los precios y las reseñas reales.
+Compartir por WhatsApp funciona igual con la bandera apagada: Open Graph no
+depende de ella.
+
+
+
 - [ ] **`NEXT_PUBLIC_SITIO_URL`** en Vercel, con el dominio real. Sin ella cae
       en `https://ticoshot.vercel.app`, que sirve para la muestra pero deja el
       sitemap, el JSON-LD y los enlaces de compartir apuntando al lugar

@@ -114,6 +114,29 @@ export const negocio = {
 
   /** Edad minima legal para comprar licor en Costa Rica. */
   edadMinima: 18,
+
+  /**
+   * ¿EL SITIO YA ES PUBLICO? De esto depende que Google lo indexe.
+   *
+   * Hoy es `false`, y no es pereza: el sitio todavia dice "Consultar precio" en
+   * los tres productos y la seccion de resenas lleva un aviso rojo que dice "no
+   * publicar asi". Dejar que Google indexe eso es peor que no salir en Google:
+   *
+   *   - El fragmento que se ve en los resultados sale con esos marcadores, y lo
+   *     lee gente que decide si comprar. Google no lo actualiza cuando se
+   *     corrige; puede tardar semanas.
+   *   - Si manana compran un dominio propio, el .vercel.app ya indexado compite
+   *     con el nuevo como contenido duplicado y hay que montar redirecciones
+   *     para arreglar algo que no tenia que haber pasado.
+   *
+   * Con `false`, el sitio manda `noindex` y el robots.txt bloquea a todos. Se
+   * sigue pudiendo abrir y compartir por WhatsApp con normalidad — Open Graph
+   * no depende de esto.
+   *
+   * SE PONE EN `true` cuando esten los precios y las resenas reales. Ver
+   * PENDIENTE.md.
+   */
+  publicado: false,
 } as const;
 
 /** Construye el enlace de WhatsApp con un mensaje opcional ya codificado. */
