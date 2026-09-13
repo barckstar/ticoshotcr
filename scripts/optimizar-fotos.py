@@ -29,11 +29,14 @@ QUE PRODUCE, Y POR QUE CADA UNO
   marca/og.jpg               1200x630 para las vistas previas de WhatsApp y
                              Facebook, compuesto desde la foto de los tres.
 
+  video/hero.mp4             El video del hero, recomprimido. Ver `video()`.
+
 El JPEG de origen ya viene recomprimido por Instagram, asi que se guarda en
 WebP con calidad 82: por debajo se empiezan a ver bloques en los degradados
 del fondo pintado, que es justo donde mas se nota.
 """
 
+import subprocess
 import sys
 from pathlib import Path
 
@@ -133,5 +136,44 @@ def main() -> None:
         print(f"  {(MARCA / 'og.jpg').relative_to(RAIZ)}  1200x630  {kb(MARCA / 'og.jpg')}")
 
 
+def video() -> None:
+    """
+    Recomprime el video del hero.
+
+    SOLO MP4, sin WebM. Se probaron los dos: VP9 a CRF 38 salio en 347 KB
+    contra los 267 KB del H.264 a CRF 31 — mas grande Y menos compatible. En un
+    video de ocho segundos, de fondo pintado y movimiento lento, VP9 no tiene
+    de donde sacar ventaja. Servir dos formatos cuando uno gana en las dos
+    cosas es trabajo de mantenimiento a cambio de nada.
+
+    SIN PISTA DE AUDIO (`-an`). No la necesita, y un video CON pista de audio
+    —aunque venga en silencio— hace que varios navegadores traten el autoplay
+    como si tuviera sonido y lo bloqueen.
+
+    `+faststart` mueve el indice al principio del archivo: sin eso el navegador
+    tiene que descargarlo entero antes de pintar el primer fotograma.
+    """
+    origen = ORIGEN / "hero.mp4"
+    if not origen.exists():
+        print("\n(sin research/assets/hero.mp4: se salta el video)")
+        return
+
+    destino = RAIZ / "public" / "video" / "hero.mp4"
+    destino.parent.mkdir(parents=True, exist_ok=True)
+
+    print("\nVideo del hero:")
+    orden = [
+        "ffmpeg", "-y", "-v", "error", "-i", str(origen),
+        "-an",
+        "-c:v", "libx264", "-crf", "31", "-preset", "slow",
+        "-pix_fmt", "yuv420p", "-movflags", "+faststart",
+        str(destino),
+    ]
+    if subprocess.run(orden).returncode != 0:
+        sys.exit("ffmpeg falló al comprimir el video")
+    print(f"  {destino.relative_to(RAIZ)}  {kb(destino)}")
+
+
 if __name__ == "__main__":
     main()
+    video()

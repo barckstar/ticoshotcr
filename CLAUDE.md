@@ -199,7 +199,20 @@ el envío, y los mensajes en español que hay escritos no se ven nunca.
 
 ## El hero
 
-Lo único sobre el pliegue. **Cero JavaScript, cero video.**
+Lo único sobre el pliegue.
+
+**Lleva video, y la primera versión no.** Lo que cambió no es el criterio sino
+cómo se paga: el video va **sin `poster`**, y sin poster deja de ser candidato a
+LCP — el candidato vuelve a ser el bloque de texto de la tarjeta, que ya viene
+en el HTML. Detrás hay un degradado del mismo atardecer coral, así que mientras
+el video carga no se ve un hueco negro sino la misma escena, quieta. El archivo
+son 267 KB: 8 s, sin audio, con el índice al principio.
+
+**Sigue pendiente medirlo.** Está razonado, no medido — ver `PENDIENTE.md` §6.
+
+El video **reemplazó a la banda de fotos y a los garabatos**: los dos hacían ya
+lo que hace el video, y tenerlos a la vez eran tres movimientos distintos
+peleándose en la misma pantalla.
 
 - **LCP:** un degradado en capas de `radial-gradient`. Se pinta con el HTML.
 - **Olas:** tres SVG en línea con el path duplicado y `width: 200%`, corriendo
@@ -207,7 +220,20 @@ Lo único sobre el pliegue. **Cero JavaScript, cero video.**
   parallax sale de la diferencia, no de un cálculo.
 - **Reacción al scroll:** `animation-timeline: scroll(root)` nativo, todo dentro
   de `@supports`. Donde no exista, las animaciones siguen en bucle. **El
-  respaldo nunca puede ser "no se mueve nada".**
+  respaldo nunca puede ser "no se mueve nada".** El video hace parallax —se
+  mueve menos que el scroll, que es lo que el ojo lee como lejanía— y la
+  tarjeta **da una vuelta entera** mientras viaja a la derecha.
+- **La vuelta es `rotate`, no `rotateY`.** Un giro en el eje Y pasa por el dorso
+  de la tarjeta: entre los 90 y los 270 grados se vería el logo espejado, o con
+  `backface-visibility: hidden` la tarjeta desaparecería a mitad del giro.
+  Girando en el plano no hay dorso — rueda como una moneda.
+- **Tres animaciones, tres elementos anidados.** `transform` es UNA propiedad:
+  dos reglas sobre el mismo elemento no se suman, la segunda pisa a la primera
+  y una se pierde en silencio.
+- **El video es la única isla de cliente del hero**, y existe solo por
+  `prefers-reduced-motion`: no hay forma de apagar el autoplay desde CSS —
+  esconder el elemento no lo pausa, solo lo hace invisible mientras sigue
+  corriendo y gastando batería.
 - **`prefers-reduced-motion` detiene todo**, y las de bucle infinito se ponen en
   `animation: none` — si no, la regla general las hace correr un ciclo entero en
   0,01 ms y la banda salta de golpe.

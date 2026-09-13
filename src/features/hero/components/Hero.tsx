@@ -3,29 +3,39 @@ import { Olas } from "@/shared/components/ui/Olas";
 import { BotonEnlace } from "@/shared/components/ui/Boton";
 import { IconoWhatsApp } from "@/shared/components/ui/Iconos";
 import { enlaceWhatsApp, mensajeConsulta, negocio } from "@/shared/config/negocio";
-import type { Producto } from "@/shared/types/producto";
-import { Garabatos } from "./Garabatos";
-import { BandaBotellas } from "./BandaBotellas";
+import { VideoFondo } from "./VideoFondo";
 
 /**
  * El hero. LO UNICO SOBRE EL PLIEGUE, y por eso el archivo mas delicado del
  * sitio.
  *
- * CERO JAVASCRIPT. Es un componente de servidor y no importa ninguno de
- * cliente. Todo lo que se mueve aqui —olas, banda, flotacion, garabatos— son
- * `@keyframes` de CSS que arrancan en el primer pintado, y la reaccion al
- * scroll es `animation-timeline` nativo. Si algo de esto dependiera del
- * observador de revelado, que vive en un `useEffect`, el hero quedaria
- * invisible hasta que llegue el JavaScript: exactamente los 4.401 ms de render
- * delay que la plantilla vino a matar.
+ * ================== POR QUE AHORA SI HAY VIDEO ==================
+ * La primera version no lo llevaba, y el motivo sigue siendo cierto: un video
+ * es lo mas caro que se puede poner arriba. Lo que cambio es COMO se paga.
  *
- * CERO VIDEO. El LCP es el degradado, que se pinta con el HTML. El video de
- * sus reels va en una banda mas abajo, donde puede cargar perezoso.
+ *   - El LCP NO es el video. El fondo de verdad es un degradado en capas que
+ *     se pinta con el HTML, y el video va encima SIN `poster`. Sin poster, el
+ *     video deja de ser candidato a LCP y el candidato vuelve a ser el bloque
+ *     de texto de la tarjeta, que ya viene en el HTML.
+ *   - El video pesa 267 KB: ocho segundos, sin audio, 720x1280, con el indice
+ *     al principio del archivo. Ver `scripts/optimizar-fotos.py`.
+ *   - Mientras no ha cargado se ve el degradado, que es el mismo atardecer
+ *     coral. No hay hueco negro ni salto de color, solo menos movimiento.
  *
- * CONTRASTE: el titular va en MARRON sobre el coral (7,51:1). El blanco sobre
- * coral da 2,32:1 y no pasa AA, aunque sea lo que usan en sus posts.
+ * Aun asi hay que MEDIRLO sobre el build de produccion: es la clase de
+ * decision que se justifica con un Lighthouse, no con un razonamiento. Queda
+ * anotado en PENDIENTE.md.
+ * ===============================================================
+ *
+ * EL VIDEO REEMPLAZO A LA BANDA DE FOTOS Y A LOS GARABATOS. Los dos hacian ya
+ * lo que hace el video —botellas cruzando de izquierda a derecha, garabatos de
+ * crayon— y tenerlos a la vez era ruido: tres movimientos distintos peleandose
+ * en la misma pantalla.
+ *
+ * CERO JAVASCRIPT salvo el video. La tarjeta, el logo y el texto son de
+ * servidor; lo que se mueve son `@keyframes` y `animation-timeline` nativo.
  */
-export function Hero({ productos }: { productos: Producto[] }) {
+export function Hero() {
   return (
     <section
       id="inicio"
@@ -34,23 +44,24 @@ export function Hero({ productos }: { productos: Producto[] }) {
 
         Un hero de pantalla completa deja al visitante con cero pistas de que
         hay algo mas abajo; tiene que apostar a que si. Cortandolo antes, el
-        borde de la seccion siguiente ASOMA, y eso es lo que invita a bajar sin
-        tener que ponerle una flechita parpadeando.
+        borde de la seccion siguiente ASOMA, y eso invita a bajar sin tener que
+        ponerle una flechita parpadeando.
 
         `svh` y no `vh`: en el movil `vh` se mide contra el viewport CON la
         barra del navegador retraida, asi que al cargar la pagina el hero nace
         mas alto que la pantalla y el asomo desaparece justo donde importa.
       */
-      className="relative isolate flex min-h-[82svh] flex-col items-center justify-center overflow-hidden pt-20 pb-48 sm:pb-56"
+      className="relative isolate flex min-h-[82svh] flex-col items-center justify-center overflow-hidden pt-20 pb-28 sm:pb-36"
     >
       {/*
         EL LCP. Un degradado en capas, sin una sola peticion de red: el
-        navegador lo pinta en cuanto tiene el CSS. Reproduce el atardecer
-        coral de sus publicaciones.
+        navegador lo pinta en cuanto tiene el CSS. Reproduce el atardecer coral
+        del video, asi que mientras el video carga no se ve un hueco sino la
+        misma escena, quieta.
       */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10"
+        className="absolute inset-0 -z-20"
         style={{
           background:
             "radial-gradient(120% 90% at 12% 8%, #FFD9A8 0%, transparent 55%)," +
@@ -59,64 +70,64 @@ export function Hero({ productos }: { productos: Producto[] }) {
         }}
       />
 
-      <Garabatos />
+      {/*
+        El video con su parallax. El envoltorio existe para separar las dos
+        transformaciones: aqui vive el desplazamiento atado al scroll, y el
+        video de dentro solo se encarga de cubrir. `transform` es una sola
+        propiedad — declararla dos veces en el mismo elemento pierde una.
+      */}
+      <div aria-hidden="true" className="capa-parallax absolute inset-0 -z-10">
+        <VideoFondo />
+      </div>
 
       {/*
-        LA TARJETA.
+        LA TARJETA, y las tres animaciones que lleva encima.
 
-        `flota` la mece despacio siempre; `card-scroll` la corre y la desvanece
-        conforme se baja. Son dos animaciones en el MISMO elemento y por eso
-        van en capas distintas del DOM: `transform` no se puede componer, la
-        segunda declaracion pisaria a la primera y una de las dos se perderia.
+        VAN EN TRES ELEMENTOS ANIDADOS Y NO EN UNO, por lo mismo:
+
+          [perspective]  da profundidad al giro. No es `transform`, pero tiene
+                         que estar en el PADRE del elemento que gira.
+          card-scroll    el viaje y la vuelta, atados al scroll.
+          flota          el mecido lento de siempre.
       */}
-      <div className="card-scroll relative z-10 px-5">
-        <div className="flota">
-          <div className="mx-auto w-full max-w-sm rounded-[2rem] border border-white/60 bg-superficie/85 p-7 text-center shadow-[0_20px_60px_rgba(150,60,30,0.22)] backdrop-blur-md sm:p-8">
-            <Logo
-              className="mx-auto h-24 w-auto text-acento sm:h-28"
-              conTexto
-              titulo={`${negocio.nombre}, 100% artesanal`}
-            />
+      <div className="relative z-10 px-5 [perspective:1400px]">
+        <div className="card-scroll">
+          <div className="flota">
+            <div className="mx-auto w-full max-w-sm rounded-[2rem] border border-white/60 bg-superficie/85 p-7 text-center shadow-[0_20px_60px_rgba(150,60,30,0.22)] backdrop-blur-md sm:p-8">
+              <Logo
+                className="mx-auto h-24 w-auto text-acento sm:h-28"
+                conTexto
+                titulo={`${negocio.nombre}, 100% artesanal`}
+              />
 
-            <p className="mt-5 text-balance text-sm font-medium leading-relaxed text-texto">
-              Litros de chiliguaro, miguelito y sangría.
-              <br />
-              Hechos con amor en {negocio.ciudad} desde el {negocio.desde}.
-            </p>
+              <p className="mt-5 text-balance text-sm font-medium leading-relaxed text-texto">
+                Litros de chiliguaro, miguelito y sangría.
+                <br />
+                Hechos con amor en {negocio.ciudad} desde el {negocio.desde}.
+              </p>
 
-            <div className="mt-6 flex flex-col gap-2.5">
-              {/* El boton que pidio el cliente. Baja al catalogo, que es
-                  donde de verdad se ordena. */}
-              <BotonEnlace href="#productos" tamano="lg">
-                Ordenar
-              </BotonEnlace>
+              <div className="mt-6 flex flex-col gap-2.5">
+                {/* El boton que pidio el cliente. Baja al catalogo, que es
+                    donde de verdad se ordena. */}
+                <BotonEnlace href="#productos" tamano="lg">
+                  Ordenar
+                </BotonEnlace>
 
-              <BotonEnlace
-                href={enlaceWhatsApp(mensajeConsulta())}
-                variante="contorno"
-                tamano="lg"
-              >
-                <IconoWhatsApp className="size-5" />
-                {negocio.whatsappVisible}
-              </BotonEnlace>
+                <BotonEnlace
+                  href={enlaceWhatsApp(mensajeConsulta())}
+                  variante="contorno"
+                  tamano="lg"
+                >
+                  <IconoWhatsApp className="size-5" />
+                  {negocio.whatsappVisible}
+                </BotonEnlace>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/*
-        LAS OLAS VAN ANTES QUE LA BANDA, y el orden aqui es el orden de
-        pintado: lo que va despues queda encima.
-
-        Al reves —que era como estaba— las tres capas de ola se pintaban SOBRE
-        las fotos, y las dos de atras son translucidas (55% y 70%): las
-        botellas salian lavadas, como detras de un vidrio esmerilado. Con las
-        fotos encima, las botellas se leen y la ola de adelante sigue cerrando
-        la seccion por debajo de ellas.
-      */}
       <Olas />
-
-      <BandaBotellas productos={productos} />
     </section>
   );
 }

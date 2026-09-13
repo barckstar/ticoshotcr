@@ -126,8 +126,14 @@ se pueda discutir en vez de creerle a ciegas.
   El dibujo SVG (`Botella.tsx`) no se borró: es el respaldo para cualquier
   sabor nuevo que todavía no tenga foto.
 
-- [ ] **Videos originales** de sus reels, para la banda de video que va debajo
-      del hero (todavía no construida — ver §6).
+- [x] ~~**Video del hero**~~ — **puesto.** Generado con Google Flow siguiendo
+      `docs/prompt-video-hero.md`: las tres botellas pasando una por una y
+      cerrando con las tres juntas. 8 s, sin audio, **267 KB**.
+
+- [ ] **La versión 16:9 del video.** El que hay es **9:16 (vertical)**, que es
+      perfecto en teléfono pero en escritorio `object-cover` lo recorta a la
+      franja central: se ve como un tercio de la altura del video. Es el mismo
+      prompt cambiando una línea — está en `docs/prompt-video-hero.md` §4.
 
 - [ ] **Logo vectorial del cliente.** El de
       `src/shared/components/ui/Logo.tsx` es una **interpretación** dibujada a
@@ -156,10 +162,13 @@ se pueda discutir en vez de creerle a ciegas.
 
 ## 6. Construido a medias a propósito
 
-- [ ] **Banda de reels bajo el hero.** El diseño la contempla: video cargado
-      perezosamente con `next/dynamic`, fuera del pliegue. No se construyó
-      porque no hay material. El hero sigue sin video a propósito — es lo que
-      permite que el LCP sea un degradado.
+- [ ] **Medir Lighthouse con el video puesto.** El hero ahora lleva video, que
+      es lo más caro que se puede poner sobre el pliegue. Está montado para que
+      NO sea el LCP —sin `poster`, con el degradado debajo pintándose desde el
+      HTML— pero eso es un razonamiento, y un razonamiento no es una medición.
+      **Auditar sobre el build de producción antes de publicar.** Si el
+      rendimiento cae por debajo de 95, la salida es mover el video a una banda
+      bajo el hero con `next/dynamic`.
 
 ---
 

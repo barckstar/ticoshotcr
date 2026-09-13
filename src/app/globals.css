@@ -187,6 +187,29 @@ body {
   animation-play-state: paused;
 }
 
+/* ============================================================
+   El video de fondo del hero.
+
+   Entra con una transicion de opacidad cuando el navegador
+   avisa que ya puede reproducirlo (`onCanPlay` pone
+   `data-listo`). Sin eso, el paso de degradado a video es un
+   corte seco: el primer fotograma aparece de golpe y se lee
+   como un parpadeo.
+
+   Empieza en 0 y no en 1 porque un <video> sin datos pinta
+   NEGRO en varios navegadores, y un rectangulo negro tapando
+   el degradado coral durante medio segundo es peor que no
+   tener video.
+   ============================================================ */
+.video-hero {
+  opacity: 0;
+  transition: opacity 0.7s ease-out;
+}
+
+.video-hero[data-listo="true"] {
+  opacity: 1;
+}
+
 /* Flotacion de la tarjeta del hero. Amplitud chica: mas se lee como error. */
 @keyframes flotar {
   0%,
@@ -249,12 +272,44 @@ body {
    "no se mueve nada": una pagina quieta se lee como rota.
    ============================================================ */
 @supports (animation-timeline: scroll()) {
-  /* La tarjeta se corre y se desvanece mientras se baja. */
+  /*
+    LA TARJETA DA UNA VUELTA ENTERA MIENTRAS VIAJA A LA DERECHA.
+
+    `rotate` en el plano y no `rotateY`: una vuelta en el eje Y pasa por el
+    dorso de la tarjeta, o sea que entre los 90 y los 270 grados se ve el
+    contenido ESPEJADO —el logo al reves y "TOHSOCIT"— o, con
+    `backface-visibility: hidden`, la tarjeta desaparece a la mitad del giro.
+    Girando en el plano nunca hay dorso: la tarjeta rueda de lado, como una
+    moneda sobre la mesa.
+
+    La perspectiva del padre no es decoracion: hace que el encogido se lea como
+    alejarse y no como achicarse.
+  */
   @keyframes card-al-bajar {
     to {
-      transform: translate3d(14vw, -4vh, 0) scale(0.92);
+      transform: translate3d(38vw, -8vh, 0) rotate(360deg) scale(0.68);
       opacity: 0;
     }
+  }
+
+  /*
+    PARALLAX DEL VIDEO. Se mueve HACIA ABAJO mientras la pagina sube, o sea
+    menos que el scroll: eso es lo que el ojo lee como que esta mas lejos.
+
+    Tambien crece un poco. Sin ese `scale`, al desplazarlo asomaria el borde
+    de arriba del video y se veria una franja del degradado cortada en seco.
+  */
+  @keyframes fondo-al-bajar {
+    to {
+      transform: translate3d(0, 16vh, 0) scale(1.18);
+    }
+  }
+
+  .capa-parallax {
+    animation: fondo-al-bajar linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 100svh;
+    will-change: transform;
   }
 
   /* Las olas se separan: la de adelante corre mas que la de atras. */
@@ -267,9 +322,10 @@ body {
   .card-scroll {
     animation: card-al-bajar linear both;
     animation-timeline: scroll(root);
-    /* Termina antes del final del hero: no debe desaparecer a mitad de la
+    /* Termina antes del final del hero: no debe seguir girando a mitad de la
        seccion siguiente, donde ya nadie la esta mirando. */
-    animation-range: 0 75svh;
+    animation-range: 0 78svh;
+    will-change: transform, opacity;
   }
 
   .ola-scroll {
@@ -490,12 +546,24 @@ html {
     animation: none !important;
   }
 
+  /*
+    El video se detiene desde JavaScript, no desde aqui: esconderlo con CSS no
+    lo pausa, solo lo hace invisible mientras sigue corriendo y gastando
+    bateria. Ver VideoFondo.tsx. Lo que si se apaga aqui es su transicion de
+    entrada, para que aparezca ya puesto.
+  */
+  .video-hero {
+    opacity: 1 !important;
+    transition: none !important;
+  }
+
   /* El contenido aparece ya colocado. No basta con acortar la duracion. */
   .revelar,
   .revelar-item,
   .revelar-inmediato,
   .garabato,
   .card-scroll,
+  .capa-parallax,
   .ola-scroll {
     opacity: 1 !important;
     transform: none !important;
