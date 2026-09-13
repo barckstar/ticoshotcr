@@ -289,6 +289,25 @@ vive en la mitad inferior: un recorte centrado —que es lo que hace todo el
 mundo por defecto— la parte justo por la mitad y deja una miniatura que no dice
 qué producto es.
 
+### Un marquee sin costura necesita DOS cosas
+
+La primera es obvia y estaba: el desplazamiento tiene que ser exactamente el
+ancho de un juego. La segunda se pasó por alto: **la pista total tiene que ser
+más ancha que la pantalla más un juego.**
+
+Con dos copias de tres tarjetas la pista medía 1.392 px, así que en una pantalla
+de 1440 cubría 696 px y dejaba **744 px de hueco a la derecha**. Se veía como si
+la banda estuviera rota, no como una tira pasando.
+
+Ahora son seis copias — 4.176 px, sin hueco hasta pantallas de 3.480 px — y el
+desplazamiento se calcula solo con `calc(-100% / var(--marquee-copias))`, que la
+variable viene de la misma constante que decide cuántas pintar. Escrito a mano
+como `-50%` solo era correcto con dos copias, y al cambiarlas el bucle habría
+saltado en cada vuelta.
+
+Son 18 tarjetas en el DOM pero **3 imágenes distintas**: el costo es marcado, no
+red.
+
 **Las olas se pintan ANTES que la banda de fotos.** El orden en el JSX es el
 orden de pintado: al revés, las dos capas de ola translúcidas (55% y 70%)
 quedaban encima y las botellas salían lavadas, como tras un vidrio esmerilado.

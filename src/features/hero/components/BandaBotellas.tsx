@@ -10,15 +10,24 @@ import type { Producto } from "@/shared/types/producto";
  * tarjetas con su marco y su sombra —una tira de Instagram— en vez de
  * recortarles el fondo.
  *
- * COMO SE HACE UN MARQUEE QUE NO SALTA
- * La pista lleva la lista DUPLICADA y se desplaza exactamente un 50%: cuando
- * el primer juego termina de salir, el segundo esta justo donde empezo el
- * primero. La copia va con `aria-hidden` para que un lector de pantalla no
- * anuncie seis botellas donde hay tres.
+ * ============ POR QUE SEIS COPIAS Y NO DOS ============
+ * Un marquee sin costura necesita DOS cosas, y la segunda se paso por alto al
+ * escribirlo la primera vez:
  *
- * `width: max-content` en la pista es lo que permite que el 50% signifique
- * "la mitad del contenido". Con un ancho en porcentaje el calculo se haria
- * sobre el contenedor y el bucle saltaria.
+ *   1. Que el desplazamiento sea exactamente el ancho de UN juego. Eso lo
+ *      resuelve la formula `-100% / copias` del @keyframes.
+ *
+ *   2. Que la pista TOTAL sea mas ancha que la pantalla mas un juego. Esto es
+ *      lo que fallaba: con dos copias de tres tarjetas la pista media unos
+ *      1392 px en escritorio, asi que en una pantalla de 1440 no alcanzaba ni
+ *      a cubrirla. Las botellas se amontonaban a la izquierda y quedaba un
+ *      hueco enorme a la derecha — se veia como si la banda estuviera rota, no
+ *      como una tira pasando.
+ *
+ * Con seis copias la pista mide unos 4176 px, que cubre hasta pantallas de
+ * ~3480 px. Son 18 tarjetas en el DOM pero solo TRES imagenes distintas: el
+ * navegador las pide una vez y reusa el resto. El costo es marcado, no red.
+ * ======================================================
  *
  * ES DECORATIVA. Los productos de verdad, con su nombre y su precio, viven en
  * el catalogo; aqui son fotos pasando. Por eso la banda no lleva enlaces: un
@@ -27,14 +36,27 @@ import type { Producto } from "@/shared/types/producto";
 
 type EstiloBanda = React.CSSProperties & Record<`--${string}`, string>;
 
+/**
+ * Cuantas veces se repite la lista.
+ *
+ * VIAJA TAMBIEN EN UNA VARIABLE CSS, porque el `@keyframes` necesita el mismo
+ * numero para calcular el desplazamiento. Cambiarlo aqui y no alla hace que el
+ * bucle salte en cada vuelta, y es de los fallos que solo se ven mirando fijo
+ * durante medio minuto.
+ */
+const COPIAS = 6;
+
 /** Inclinaciones fijas por posicion. Ver el comentario de abajo. */
 const INCLINACION = ["-rotate-3", "rotate-2", "-rotate-1"];
 
 export function BandaBotellas({ productos }: { productos: Producto[] }) {
-  const juego = (oculto: boolean) => (
+  const juego = (copia: number) => (
     <ul
+      key={copia}
       className="flex shrink-0 items-end gap-6 px-3 sm:gap-10 sm:px-5"
-      aria-hidden={oculto || undefined}
+      /* Solo la primera copia se anuncia: un lector de pantalla no tiene por
+         que oir dieciocho botellas donde hay tres. */
+      aria-hidden={copia > 0 || undefined}
     >
       {productos.map((p, i) => (
         <li
@@ -54,8 +76,8 @@ export function BandaBotellas({ productos }: { productos: Producto[] }) {
                 alt=""
                 fill
                 /* La tarjeta mide 140px en movil y 192px desde `sm`. Sin
-                   `sizes`, next/image sirve la de 1080 de ancho — sobre el
-                   pliegue y seis veces. */
+                   `sizes`, next/image serviria la de 1080 de ancho — sobre el
+                   pliegue y dieciocho veces. */
                 sizes="(max-width: 640px) 140px, 192px"
                 className="object-cover"
               />
@@ -64,7 +86,7 @@ export function BandaBotellas({ productos }: { productos: Producto[] }) {
             <Botella
               color={p.color}
               nombre={p.nombre}
-              className="h-36 w-auto drop-shadow-xl sm:h-52"
+              className="h-44 w-auto drop-shadow-xl sm:h-60"
             />
           )}
         </li>
@@ -76,10 +98,14 @@ export function BandaBotellas({ productos }: { productos: Producto[] }) {
     <div className="marquee pointer-events-none absolute inset-x-0 bottom-6 overflow-hidden sm:bottom-10">
       <div
         className="marquee-pista flex"
-        style={{ "--marquee-duracion": "38s" } as EstiloBanda}
+        style={
+          {
+            "--marquee-duracion": "38s",
+            "--marquee-copias": String(COPIAS),
+          } as EstiloBanda
+        }
       >
-        {juego(false)}
-        {juego(true)}
+        {Array.from({ length: COPIAS }, (_, i) => juego(i))}
       </div>
     </div>
   );

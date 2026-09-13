@@ -163,13 +163,24 @@ body {
 /*
   La banda de botellas. Izquierda -> derecha, como pidio el cliente.
 
-  Va de -50% a 0 y no de 0 a 50%: asi el primer fotograma ya tiene contenido
+  EL DESPLAZAMIENTO ES EL ANCHO DE UN JUEGO, no medio recorrido fijo.
+
+  El porcentaje de `translate` se mide sobre el ancho del PROPIO elemento, y la
+  pista contiene `--marquee-copias` juegos identicos. `-100% / copias` es
+  entonces, por construccion, exactamente uno de ellos: cuando la animacion
+  termina, el juego 2 quedo donde estaba el 1 y el bucle no tiene costura.
+
+  Antes estaba escrito a mano como `-50%`, que solo es correcto con DOS copias.
+  Al pasar a seis habria saltado en cada vuelta. La variable la pone
+  BandaBotellas.tsx desde la misma constante que decide cuantas pintar.
+
+  Va de -1 juego a 0 y no de 0 a +1: asi el primer fotograma ya tiene contenido
   cubriendo el borde izquierdo. Al reves la banda entra vacia y se ve el hueco
   durante el primer ciclo.
 */
 @keyframes marquee-derecha {
   from {
-    transform: translate3d(-50%, 0, 0);
+    transform: translate3d(calc(-100% / var(--marquee-copias, 2)), 0, 0);
   }
   to {
     transform: translate3d(0, 0, 0);
