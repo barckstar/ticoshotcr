@@ -81,9 +81,10 @@ con el cliente"** a la vista.
 
 Todo lo que está en `null` ahí es un dato que no tenemos, no un descuido.
 
-- [ ] **`zonaEntrega`** — hoy `null`, y por eso la sección de entrega dice que
-      se coordina por WhatsApp en vez de listar cantones. ¿Hasta dónde llegan?
-      ¿San Ramón solo? ¿Palmares, Naranjo, Grecia? ¿Van a playa?
+- [x] ~~**`zonaEntrega`**~~ — **confirmado:** las entregas se hacen en
+      **San Ramón de Alajuela**, y fuera de ahí **se organiza**. Son dos campos
+      distintos, `zonaEntrega` y `entregaFueraDeZona`, porque cobertura y
+      disposición no son lo mismo.
 - [ ] **`metodosPago`** — el checkout ofrece **Sinpe Móvil** y **Efectivo**. Sin
       tarjeta, por ser operación de encargo y entrega. ¿Es correcto? ¿A qué
       número es el Sinpe?
@@ -95,16 +96,35 @@ Todo lo que está en `null` ahí es un dato que no tenemos, no un descuido.
 - [ ] **Patente de licores** — define qué puede prometer el sitio sobre venta y
       entrega.
 
+### Los shots por persona del cotizador
+
+`src/features/eventos/lib/cotizador.ts` asume **2 / 4 / 7 shots por persona**
+según el ambiente de la fiesta. **Esos tres números los puso el programador, no
+el cliente**, y el cliente es bartender con más de cinco años de barra: sabe
+cuánto toma la gente de verdad y estos deberían ser suyos.
+
+El supuesto **se muestra en pantalla** —cada opción dice a cuántos shots
+equivale y la tarjeta del resultado escribe la cuenta completa— justo para que
+se pueda discutir en vez de creerle a ciegas.
+
+- [ ] ¿Cuántos shots por persona, en una fiesta tranquila, una normal y una
+      grande? Cambiarlo es editar una tabla de tres líneas.
+
 ---
 
 ## 4. Medios
 
-- [ ] **Fotos originales** de las tres botellas, sin bajar de Instagram (ahí
-      vienen recomprimidas y ya recortadas a 4:5).
+- [x] ~~**Fotos de las tres botellas**~~ — **puestas.** Son las de sus
+      publicaciones: la del Chiliguaro, la del Miguelito, la de la Sangría y la
+      de los tres juntos. Los originales viven en `research/assets/` (no se
+      versionan) y `scripts/optimizar-fotos.py` produce lo que sirve el sitio.
 
-  Mientras no lleguen, `Producto.imagen` es `null` y el sitio dibuja la botella
-  en SVG (`src/shared/components/ui/Botella.tsx`). **No es un hueco**: se ve
-  bien y es lo que corresponde mientras no haya material propio.
+  Siguen siendo **las de Instagram**, o sea ya recomprimidas por ellos. Si el
+  cliente tiene los archivos de cámara, se reemplazan en `research/assets/`, se
+  corre el script otra vez y sale igual — por eso la receta está escrita.
+
+  El dibujo SVG (`Botella.tsx`) no se borró: es el respaldo para cualquier
+  sabor nuevo que todavía no tenga foto.
 
 - [ ] **Videos originales** de sus reels, para la banda de video que va debajo
       del hero (todavía no construida — ver §6).
@@ -114,10 +134,12 @@ Todo lo que está en `null` ahí es un dato que no tenemos, no un descuido.
       mano en SVG, no el archivo original. Cuando llegue el suyo se reemplazan
       los paths y nada más.
 
-- [ ] **Imagen Open Graph** (1200×630) para las vistas previas de WhatsApp y
-      Facebook. Hoy no hay: el enlace compartido sale sin imagen.
+- [x] ~~**Imagen Open Graph**~~ — **hecha.** `public/marca/og.jpg`, 1200×630,
+      compuesta desde la foto de los tres recortando una franja horizontal
+      centrada en las etiquetas.
 
-- [ ] **Favicon e iconos** de la app. Hoy no hay.
+- [x] ~~**Favicon e iconos**~~ — **hechos**, a partir del logo real:
+      `icon.png` (32), `icon-192.png`, `icon-512.png` y `apple-icon.png` (180).
 
 ---
 

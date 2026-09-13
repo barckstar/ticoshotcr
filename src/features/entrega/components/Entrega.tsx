@@ -13,10 +13,11 @@ import { enlaceWhatsApp, negocio } from "@/shared/config/negocio";
  * esta a medias. Decirlo de frente —trabajamos por encargo y llegamos— lo
  * convierte en lo que de verdad es: la razon por la que sirven para fiestas.
  *
- * NO PROMETE COBERTURA QUE NO TENEMOS. Mientras `negocio.zonaEntrega` sea
- * null, la seccion dice que la entrega se coordina por WhatsApp en vez de
- * listar cantones inventados. "Llegamos a todo Alajuela" es la clase de
- * promesa que termina con alguien esperando un pedido que no va a salir.
+ * NO PROMETE COBERTURA QUE NO TENEMOS. Se listan SOLO los lugares que el
+ * cliente confirmo —hoy San Ramon de Alajuela— y lo demas se presenta como
+ * algo que se organiza, no como cobertura. "Llegamos a todo Alajuela" es la
+ * clase de promesa que termina con alguien esperando un pedido que no va a
+ * salir.
  */
 export function Entrega() {
   const zonas = negocio.zonaEntrega;
@@ -56,14 +57,29 @@ export function Entrega() {
           </h3>
 
           {zonas ? (
-            <ul className="mt-3 space-y-2">
-              {zonas.map((z) => (
-                <li key={z} className="flex items-center gap-2.5 text-texto-suave">
-                  <span aria-hidden="true" className="size-1.5 rounded-full bg-acento" />
-                  {z}
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="mt-3 space-y-2">
+                {zonas.map((z) => (
+                  <li key={z} className="flex items-center gap-2.5 text-texto-suave">
+                    <span aria-hidden="true" className="size-1.5 rounded-full bg-acento" />
+                    {z}
+                  </li>
+                ))}
+              </ul>
+
+              {/*
+                Fuera de la zona se ORGANIZA, que no es lo mismo que "llegamos".
+                La diferencia importa: lo primero invita a preguntar, lo segundo
+                es una promesa que quizá no se pueda cumplir. Por eso son dos
+                campos distintos en negocio.ts.
+              */}
+              {negocio.entregaFueraDeZona && (
+                <p className="mt-4 leading-relaxed text-texto-suave">
+                  ¿Vas para otro lado? Se organiza. Escribinos con el día y el
+                  lugar y te decimos de una vez si se puede.
+                </p>
+              )}
+            </>
           ) : (
             <p className="mt-3 leading-relaxed text-texto-suave">
               Salimos de {negocio.ciudad}, {negocio.provincia}. El costo y el

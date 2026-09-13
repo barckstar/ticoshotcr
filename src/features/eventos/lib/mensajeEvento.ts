@@ -48,7 +48,7 @@ export function construirMensajeEvento(
     `Lugar: ${datos.lugar}`,
     `Ambiente: ${etiquetaIntensidad[datos.intensidad]}`,
     "",
-    `*Cálculo del sitio: ${litros} ${litros === 1 ? "litro" : "litros"}*`,
+    `*Cálculo del sitio: ${litros} ${litros === 1 ? "litro" : "litros"} de Ticoshot*`,
   ];
 
   for (const m of mezcla) {
@@ -64,7 +64,7 @@ export function construirMensajeEvento(
   */
   partes.push(
     "",
-    "Los litros son una estimación del sitio. Quedo atento a su recomendación y al precio.",
+    "Los litros son una estimación del sitio y solo cubren lo de Ticoshot. Me interesa también el servicio de barra. Quedo atento a su recomendación y al precio.",
   );
 
   return medir(partes.join("\n"));

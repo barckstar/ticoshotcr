@@ -24,7 +24,6 @@ reglas que mandan sobre todo lo demás:
    | Precio (`null`) | "Consultar precio"; el carrito dice "A confirmar"; el mensaje sale sin monto; el JSON-LD omite `offers` |
    | Reseña (`fuente: "pendiente"`) | Aviso rojo "Sección pendiente — no publicar así" |
    | Hito (`confirmado: false`) | Atenuado, con etiqueta "Por confirmar con el cliente" |
-   | `zonaEntrega` (`null`) | Dice que se coordina por WhatsApp, no lista cantones |
    | `google.cid` (`null`) | El mapa cae en búsqueda por nombre, no en la ficha de otro |
 
    **Un dato de relleno se ve idéntico a uno real.** Nadie se acuerda después de
@@ -222,6 +221,67 @@ como bebida alcohólica.
 **`Organization`, no `LocalBusiness`.** `LocalBusiness` describe un lugar al que
 se puede ir y pide `address`. Ticoshot no tiene local: se declara `areaServed`.
 Inventar una dirección mandaría gente a la casa de alguien.
+
+## Datos confirmados por el cliente
+
+- **Entregas en San Ramón de Alajuela**, y fuera de ahí **se organiza**. Son dos
+  campos distintos en `negocio.ts` —`zonaEntrega` y `entregaFueraDeZona`—
+  porque cobertura y disposición no son lo mismo: lo primero se promete, lo
+  segundo se conversa.
+- **El Miguelito necesita refrigeración.** Lleva leche condensada. Va como
+  `Producto.advertencia` y se pinta en la tarjeta del catálogo, en el kit que
+  lo incluya y en la línea del carrito — no escondido en las preguntas
+  frecuentes, porque quien lo compra tiene que saberlo antes de dejarlo al sol.
+
+- **El dueño es bartender profesional, con más de cinco años de barra.** Por eso
+  la sección de eventos **no es "te vendemos litros"**: monta la barra completa
+  —cocteles, ron, cerveza, lo que pida el cliente— y con los contactos del
+  gremio consigue el licor más barato de lo que costaría comprarlo por cuenta
+  propia. Eso cambia contra quién compite la sección: antes competía con ir al
+  supermercado, ahora no compite con nadie.
+
+## El supuesto del cotizador SE MUESTRA
+
+`cotizador.ts` asume 2 / 4 / 7 shots por persona. **Esos números no salen de
+ningún dato**: los puso quien programó el sitio, y están pendientes de que el
+cliente —que es quien sabe— los corrija.
+
+Por eso el sitio **enseña la cuenta**: cada opción de ambiente dice a cuántos
+shots equivale y la tarjeta del resultado escribe
+`60 personas × 4 shots = 240 shots ÷ 20 por litro = 12 litros`.
+
+Un cotizador que devuelve "12 litros" a secas no se puede discutir: o se le cree
+o no. Con el supuesto a la vista, quien organiza la fiesta dice "nosotros
+tomamos más que eso" — que es la conversación que hay que tener antes de
+comprar, no después. Una prueba verifica que la cuenta escrita da siempre el
+mismo número que la función que calcula.
+
+## Fotos
+
+Las fotos son las de sus propias publicaciones: el fondo coral pintado a mano
+es parte de su identidad, no un fondo de relleno. Por eso van **a sangre** en
+la tarjeta del catálogo, sin marco ni margen.
+
+Los originales viven en `research/assets/` y **no se versionan**;
+`scripts/optimizar-fotos.py` produce lo que sirve el sitio. Es una receta y no
+un recorte hecho a ojo: el día que lleguen las fotos de cámara se corre otra vez
+y sale idéntico.
+
+**Dos recortes por producto, y no uno:**
+
+| Recorte | Para qué |
+|---|---|
+| `vertical` 4:5 | Tarjeta del catálogo y banda del hero |
+| `cuadrada` 1:1, **anclada abajo** | Miniatura del carrito y tarjetas de kits |
+
+El cuadrado se ancla abajo y no al centro porque en las tres fotos la etiqueta
+vive en la mitad inferior: un recorte centrado —que es lo que hace todo el
+mundo por defecto— la parte justo por la mitad y deja una miniatura que no dice
+qué producto es.
+
+**Las olas se pintan ANTES que la banda de fotos.** El orden en el JSX es el
+orden de pintado: al revés, las dos capas de ola translúcidas (55% y 70%)
+quedaban encima y las botellas salían lavadas, como tras un vidrio esmerilado.
 
 ## Comandos
 

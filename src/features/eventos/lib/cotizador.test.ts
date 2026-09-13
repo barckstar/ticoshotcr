@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   litrosParaPersonas,
   repartirLitros,
+  explicarCalculo,
+  shotsPorPersona,
   SHOTS_POR_LITRO,
   MAX_PERSONAS,
 } from "./cotizador";
@@ -31,9 +33,10 @@ describe("litrosParaPersonas", () => {
   });
 
   it("sube con la intensidad", () => {
+    // 50 personas: 2, 4 y 7 shots cada una, sobre 20 shots por litro.
     expect(litrosParaPersonas(50, "suave")).toBe(5);
     expect(litrosParaPersonas(50, "normal")).toBe(10);
-    expect(litrosParaPersonas(50, "fuerte")).toBe(15);
+    expect(litrosParaPersonas(50, "fuerte")).toBe(18); // 17,5 redondeado arriba
   });
 
   it("devuelve 0 sin invitados, para no recomendar nada a un formulario vacío", () => {
@@ -55,6 +58,26 @@ describe("litrosParaPersonas", () => {
   it("ignora la parte decimal de las personas", () => {
     // Medio invitado no existe; un input de número puede mandarlo igual.
     expect(litrosParaPersonas(10.9, "normal")).toBe(litrosParaPersonas(10, "normal"));
+  });
+});
+
+describe("explicarCalculo", () => {
+  /*
+    La cuenta que se pinta en pantalla tiene que dar EL MISMO numero que la
+    funcion que calcula. Si se separan, el cliente lee una cuenta que no cuadra
+    con el resultado de arriba y deja de creerle al sitio entero.
+  */
+  it("la cuenta escrita coincide con el resultado, en todo el rango", () => {
+    for (const intensidad of ["suave", "normal", "fuerte"] as const) {
+      for (const personas of [1, 7, 30, 60, 123, 500]) {
+        const litros = litrosParaPersonas(personas, intensidad);
+        const texto = explicarCalculo(personas, intensidad, litros);
+        expect(texto).toContain(`${personas} personas`);
+        expect(texto).toContain(`${shotsPorPersona[intensidad]} shots`);
+        expect(texto).toContain(`${personas * shotsPorPersona[intensidad]} shots`);
+        expect(texto).toContain(`${litros}`);
+      }
+    }
   });
 });
 

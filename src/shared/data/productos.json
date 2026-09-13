@@ -9,7 +9,21 @@
     "precio": null,
     "litros": 1,
     "disponible": true,
-    "imagen": null
+    "advertencia": null,
+    "imagen": {
+      "vertical": {
+        "src": "/productos/chiliguaro.webp",
+        "alt": "Botella de litro de Chiliguaro Ticoshot sobre fondo coral",
+        "ancho": 1080,
+        "alto": 1350
+      },
+      "cuadrada": {
+        "src": "/productos/chiliguaro-sq.webp",
+        "alt": "Etiqueta del Chiliguaro Ticoshot",
+        "ancho": 900,
+        "alto": 900
+      }
+    }
   },
   {
     "id": "miguelito",
@@ -21,7 +35,21 @@
     "precio": null,
     "litros": 1,
     "disponible": true,
-    "imagen": null
+    "advertencia": "Necesita refrigeración",
+    "imagen": {
+      "vertical": {
+        "src": "/productos/miguelito.webp",
+        "alt": "Botella de litro de Miguelito Ticoshot sobre fondo coral",
+        "ancho": 1080,
+        "alto": 1350
+      },
+      "cuadrada": {
+        "src": "/productos/miguelito-sq.webp",
+        "alt": "Etiqueta del Miguelito Ticoshot",
+        "ancho": 900,
+        "alto": 900
+      }
+    }
   },
   {
     "id": "sangria",
@@ -33,6 +61,20 @@
     "precio": null,
     "litros": 1,
     "disponible": true,
-    "imagen": null
+    "advertencia": null,
+    "imagen": {
+      "vertical": {
+        "src": "/productos/sangria.webp",
+        "alt": "Botella de litro de Sangría Ticoshot sobre fondo coral",
+        "ancho": 1080,
+        "alto": 1350
+      },
+      "cuadrada": {
+        "src": "/productos/sangria-sq.webp",
+        "alt": "Etiqueta de la Sangría Ticoshot",
+        "ancho": 900,
+        "alto": 900
+      }
+    }
   }
 ]

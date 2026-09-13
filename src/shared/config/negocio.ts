@@ -60,14 +60,25 @@ export const negocio = {
   pais: "CR",
 
   /**
-   * Zona de entrega. `null` hasta que el cliente la dicte.
+   * Donde se entrega SIN MAS TRAMITE, confirmado por el cliente.
    *
-   * Mientras sea null la seccion de entrega no promete cobertura: dice que se
-   * coordina por WhatsApp. Prometer "llegamos a todo Alajuela" sin saberlo es
-   * la clase de promesa que termina en un cliente esperando un pedido que no
-   * va a llegar.
+   * Es una lista y no un texto suelto porque la seccion de entrega la pinta
+   * como puntos. Lo que NO esta aqui no se promete: fuera de esta zona se
+   * coordina, que es distinto de "llegamos". Prometer "llegamos a todo
+   * Alajuela" sin saberlo es la clase de promesa que termina con un cliente
+   * esperando un pedido que no va a salir.
    */
-  zonaEntrega: null as string[] | null,
+  zonaEntrega: ["San Ramón de Alajuela"] as string[] | null,
+
+  /**
+   * `true` = fuera de la zona de arriba tambien se puede, coordinandolo.
+   *
+   * Confirmado por el cliente: las entregas son en San Ramon y el resto **se
+   * organiza**. Separado de `zonaEntrega` a proposito, porque son dos cosas
+   * distintas: una es cobertura y la otra es disposicion. Juntarlas obligaria
+   * a escribir "San Ramon y donde se pueda" en la lista, que no es una zona.
+   */
+  entregaFueraDeZona: true,
 
   /* Redes REALES de Ticoshot, verificadas. */
   facebook: "https://www.facebook.com/ticoshotcr/",
@@ -88,18 +99,18 @@ export const negocio = {
   },
 
   /**
-   * Metodos de pago. Vacio hasta que el cliente confirme si recibe Sinpe y a
-   * que numero. El checkout esconde el selector mientras la lista este vacia,
-   * en vez de ofrecer opciones que quiza no acepta.
-   */
-  metodosPago: [] as string[],
-
-  /**
    * Sin horario publicado. Un negocio por encargo no atiende en mostrador, y
    * poner "Lunes a domingo 8am-10pm" inventado hace que alguien escriba a las
    * 9 de la noche esperando respuesta.
    */
   horarios: null,
+
+  /*
+    Los metodos de pago NO viven aqui: son el enum `metodosPago` de
+    `features/checkout/schema.ts`, que es donde el formulario los valida.
+    Tenerlos en los dos lados es tener dos fuentes de verdad para lo mismo, y
+    la que no se usa se queda desactualizada sin que nadie lo note.
+  */
 
   /** Edad minima legal para comprar licor en Costa Rica. */
   edadMinima: 18,

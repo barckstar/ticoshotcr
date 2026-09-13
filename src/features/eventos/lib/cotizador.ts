@@ -19,16 +19,30 @@ export const SHOTS_POR_LITRO = 20;
 export type Intensidad = "suave" | "normal" | "fuerte";
 
 /**
- * Shots por persona en todo el evento, no por hora.
+ * Shots por persona en TODO el evento, no por hora.
  *
  * Por hora obliga a preguntar cuanto dura la fiesta, y quien la organiza no
  * sabe esa respuesta: sabe cuanta gente invito. Una pregunta menos es una
  * pregunta menos que abandonar.
+ *
+ * ================== ESTOS TRES NUMEROS SON UN SUPUESTO ==================
+ * No salen de ningun dato: los puso quien programo el sitio. El dueno de
+ * Ticoshot es bartender con mas de cinco anos de barra y sabe cuanto toma la
+ * gente de verdad; estos valores son un punto de partida hasta que el los
+ * corrija, y corregirlos es editar esta tabla y nada mas.
+ *
+ * POR ESO EL SUPUESTO SE ENSENA EN PANTALLA. Cada opcion dice a cuantos shots
+ * por persona equivale, y la tarjeta del resultado escribe la cuenta completa.
+ * Un cotizador que devuelve "12 litros" sin decir de donde salen no se puede
+ * discutir: o se le cree o no. Ensenando la cuenta, quien organiza la fiesta
+ * ve el supuesto y dice "nosotros tomamos mas que eso" — que es exactamente la
+ * conversacion que hay que tener antes de comprar, no despues.
+ * ========================================================================
  */
 export const shotsPorPersona: Record<Intensidad, number> = {
   suave: 2,
   normal: 4,
-  fuerte: 6,
+  fuerte: 7,
 };
 
 export const etiquetaIntensidad: Record<Intensidad, string> = {
@@ -36,6 +50,17 @@ export const etiquetaIntensidad: Record<Intensidad, string> = {
   normal: "Normal — la mayoría se anima",
   fuerte: "Fiesta grande — se toma de verdad",
 };
+
+/** La cuenta escrita, para que el supuesto se vea y se pueda discutir. */
+export function explicarCalculo(
+  personas: number,
+  intensidad: Intensidad,
+  litros: number,
+): string {
+  const shots = shotsPorPersona[intensidad];
+  const total = Math.floor(personas) * shots;
+  return `${Math.floor(personas)} personas × ${shots} shots = ${total} shots ÷ ${SHOTS_POR_LITRO} por litro = ${litros} ${litros === 1 ? "litro" : "litros"}`;
+}
 
 /** Tope de invitados que acepta el formulario. */
 export const MAX_PERSONAS = 500;

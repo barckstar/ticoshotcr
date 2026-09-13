@@ -122,3 +122,30 @@ export function IconoCorazon({
     </svg>
   );
 }
+
+/**
+ * Copo de nieve, para el aviso de conservacion en frio.
+ *
+ * Seis brazos con sus ramitas, dibujados con `stroke` y no con relleno: a
+ * 14px, que es el tamano al que se usa en el badge del catalogo, un copo
+ * relleno se convierte en una mancha.
+ */
+export function IconoFrio({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M12 2v20M4.2 6.5l15.6 9M19.8 6.5l-15.6 9" />
+      <path d="M12 6l-2.4-2.4M12 6l2.4-2.4M12 18l-2.4 2.4M12 18l2.4 2.4" />
+      <path d="M6.6 9.1 3.3 9.3M6.6 9.1 5.5 6M17.4 14.9l3.3-.2M17.4 14.9l1.1 3.1" />
+      <path d="M17.4 9.1l3.3.2M17.4 9.1 18.5 6M6.6 14.9l-3.3.2M6.6 14.9 5.5 18" />
+    </svg>
+  );
+}

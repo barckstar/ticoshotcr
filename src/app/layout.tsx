@@ -57,6 +57,15 @@ export const metadata: Metadata = {
     "Ticoshot",
   ],
   alternates: { canonical: "/" },
+  /*
+    La imagen de compartir: 1200x630, que es lo que piden Facebook y WhatsApp.
+    La compone `scripts/optimizar-fotos.py` recortando una franja horizontal de
+    la foto de los tres, centrada en las etiquetas — encajar la foto 4:5 entera
+    deja dos bandas vacias a los lados y las botellas salen diminutas.
+
+    Instagram NO lee Open Graph: no genera vista previa de enlaces. Ahi la
+    imagen sirve igual, pero como material que se sube a mano.
+  */
   openGraph: {
     type: "website",
     locale: "es_CR",
@@ -64,13 +73,31 @@ export const metadata: Metadata = {
     title: `${negocio.nombre} | 100% artesanal`,
     description: `Chiliguaro, Miguelito y Sangría en litro. Desde ${negocio.ciudad}, ${negocio.provincia}. Pedí por WhatsApp.`,
     url: "/",
+    images: [
+      {
+        url: "/marca/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: `Chiliguaro, Miguelito y Sangría de ${negocio.nombre}`,
+        type: "image/jpeg",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: `${negocio.nombre} | 100% artesanal`,
     description: `Chiliguaro, Miguelito y Sangría en litro. Pedí por WhatsApp.`,
+    images: ["/marca/og.jpg"],
   },
   applicationName: negocio.nombre,
+  icons: {
+    icon: [
+      { url: "/marca/icon.png", sizes: "32x32", type: "image/png" },
+      { url: "/marca/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/marca/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/marca/apple-icon.png", sizes: "180x180" }],
+  },
   robots: { index: true, follow: true },
 };
 

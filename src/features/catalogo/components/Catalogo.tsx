@@ -1,6 +1,8 @@
+import Image from "next/image";
 import { Seccion } from "@/shared/components/ui/Seccion";
 import { Tarjeta } from "@/shared/components/ui/Tarjeta";
 import { Botella } from "@/shared/components/ui/Botella";
+import { IconoFrio } from "@/shared/components/ui/Iconos";
 import { RevelarCascada, ItemCascada } from "@/shared/components/ui/Revelar";
 import { formatoColones } from "@/shared/lib/formatoColones";
 import { enlaceWhatsApp, negocio } from "@/shared/config/negocio";
@@ -82,25 +84,38 @@ export function Catalogo({ productos }: { productos: Producto[] }) {
                   al color del producto: identifica, no decora la seccion. */}
               <div className={`h-1.5 w-full ${filete[producto.color]}`} />
 
-              <div className="flex items-center justify-center bg-superficie-alt px-6 py-8">
-                {producto.imagen ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={producto.imagen.src}
-                    alt={producto.imagen.alt}
-                    width={producto.imagen.ancho}
-                    height={producto.imagen.alto}
-                    loading="lazy"
-                    className="h-56 w-auto drop-shadow-lg"
+              {producto.imagen ? (
+                /*
+                  La foto va A SANGRE, sin margen ni fondo debajo. El fondo
+                  coral pintado a mano ES la foto: dejarle un marco alrededor
+                  la convierte en un recorte pegado sobre una tarjeta, que es
+                  justo lo contrario de lo que hacen en sus publicaciones.
+
+                  `aspect-4/5` reserva el hueco ANTES de que la foto cargue.
+                  Sin eso la tarjeta crece de golpe al llegar la imagen y eso
+                  es CLS, que es una de las cuatro notas de Lighthouse.
+                */
+                <div className="relative aspect-4/5 w-full">
+                  <Image
+                    src={producto.imagen.vertical.src}
+                    alt={producto.imagen.vertical.alt}
+                    fill
+                    /* Tres columnas en un contenedor de 1152px: ~365px cada
+                       una. Sin `sizes`, next/image sirve la de 1080 a todo el
+                       mundo, incluido un teléfono. */
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 365px"
+                    className="object-cover"
                   />
-                ) : (
+                </div>
+              ) : (
+                <div className="flex items-center justify-center bg-superficie-alt px-6 py-8">
                   <Botella
                     color={producto.color}
                     nombre={producto.nombre}
                     className="h-56 w-auto drop-shadow-lg"
                   />
-                )}
-              </div>
+                </div>
+              )}
 
               <div className="flex flex-1 flex-col p-7">
                 <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-texto">
@@ -109,6 +124,19 @@ export function Catalogo({ productos }: { productos: Producto[] }) {
                 <p className="mt-1.5 text-sm font-medium text-texto-suave">
                   {producto.resumen}
                 </p>
+
+                {/*
+                  El aviso de conservacion va AQUI ARRIBA, pegado al nombre, y
+                  no al final de la tarjeta ni en las preguntas frecuentes.
+                  Quien compra un Miguelito tiene que saber que necesita frio
+                  ANTES de dejarlo en el carro al sol, no despues.
+                */}
+                {producto.advertencia && (
+                  <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-acento/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-acento">
+                    <IconoFrio className="size-3.5" />
+                    {producto.advertencia}
+                  </p>
+                )}
 
                 <p className="mt-4 text-sm leading-relaxed text-texto">
                   {producto.descripcion}

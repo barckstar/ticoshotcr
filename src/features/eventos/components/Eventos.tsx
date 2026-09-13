@@ -8,12 +8,15 @@ import { IconoWhatsApp } from "@/shared/components/ui/Iconos";
 import { enviarPorWhatsApp } from "@/shared/lib/whatsapp";
 import {
   etiquetaIntensidad,
+  shotsPorPersona,
   litrosParaPersonas,
   repartirLitros,
   MAX_PERSONAS,
   type Intensidad,
 } from "../lib/cotizador";
+import { explicarCalculo } from "../lib/cotizador";
 import { construirMensajeEvento } from "../lib/mensajeEvento";
+import { ServicioBarra } from "./ServicioBarra";
 
 /**
  * Eventos y catering, con el cotizador dentro.
@@ -103,20 +106,21 @@ export function Eventos({ nombres }: { nombres: Record<string, string> }) {
     <Seccion
       id="eventos"
       antetitulo="Eventos y catering"
-      titulo="¿Cuántos litros para tu fiesta?"
+      titulo="Ponemos la barra de tu fiesta"
     >
+      <ServicioBarra />
+
+
       <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-12">
         <div>
-          <p className="text-lg leading-relaxed text-texto">
-            Bodas, cumpleaños, fiestas de empresa, graduaciones y paseos de
-            playa. Se surte el evento entero y se coordina la entrega el día
-            que toca.
-          </p>
-          <p className="mt-4 leading-relaxed text-texto-suave">
-            Poné cuánta gente va y el sitio calcula cuántos litros hacen falta.
-            Es una estimación —un litro son 20 shots— para que no te quedés
-            corto ni compres de más. El precio se acuerda por WhatsApp según la
-            fecha y el lugar.
+          <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-texto">
+            ¿Cuántos litros para tu fiesta?
+          </h3>
+          <p className="mt-3 leading-relaxed text-texto-suave">
+            Poné cuánta gente va y el sitio calcula de cuántos litros de lo
+            nuestro estamos hablando. Es un punto de partida para la
+            conversación, no una cotización: el resto de la barra y el precio se
+            arman por WhatsApp según la fecha, el lugar y qué toma tu gente.
           </p>
 
           {/* EL RESULTADO. Va arriba en móvil, donde se ve sin bajar. */}
@@ -131,6 +135,19 @@ export function Eventos({ nombres }: { nombres: Record<string, string> }) {
                 {litros === 1 ? "litro" : "litros"}
               </span>
             </p>
+
+            {/*
+              LA CUENTA, ESCRITA. Sin esto el cotizador devuelve "12 litros" y
+              no hay forma de discutirlo: o se le cree o no. Con el supuesto a
+              la vista, quien organiza la fiesta puede decir "nosotros tomamos
+              mas que eso", que es la conversacion que hay que tener ANTES de
+              comprar. Ver el comentario largo en cotizador.ts.
+            */}
+            {litros > 0 && (
+              <p className="mt-3 text-sm text-white/85">
+                {explicarCalculo(cantidad, intensidad, litros)}
+              </p>
+            )}
 
             {mezcla.length > 0 ? (
               <ul className="mt-5 space-y-1.5 border-t border-white/25 pt-5">
@@ -211,7 +228,12 @@ export function Eventos({ nombres }: { nombres: Record<string, string> }) {
                       onChange={() => setIntensidad(op)}
                       className="size-4 accent-[var(--color-acento)]"
                     />
-                    {etiquetaIntensidad[op]}
+                    <span>
+                      {etiquetaIntensidad[op]}
+                      <span className="ml-1 font-normal text-texto-suave">
+                        · {shotsPorPersona[op]} shots por persona
+                      </span>
+                    </span>
                   </label>
                 ))}
               </div>

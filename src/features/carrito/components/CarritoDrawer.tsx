@@ -131,15 +131,27 @@ export function CarritoDrawer({ onIrAlCheckout }: { onIrAlCheckout: () => void }
               {lineas.map((l) => (
                 <li key={l.producto.id} className="py-4">
                   <div className="flex gap-3">
-                    {/* Sin foto todavia: la botella dibujada. Ver Botella.tsx. */}
+                    {/*
+                      El recorte CUADRADO, no la foto vertical. La vertical
+                      metida en un hueco cuadrado con `object-cover` recorta
+                      por el centro y parte la etiqueta justo por la mitad:
+                      la miniatura deja de decir que producto es. Sin foto
+                      todavia, la botella dibujada — ver Botella.tsx.
+
+                      Sin next/image a proposito: son 64px dentro de un drawer
+                      que solo existe si el usuario lo abre. El optimizador de
+                      imagenes para una miniatura de 64px cuesta mas de lo que
+                      ahorra.
+                    */}
                     <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-lg bg-superficie-alt">
                       {l.producto.imagen ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={l.producto.imagen.src}
-                          alt={l.producto.imagen.alt}
-                          width={l.producto.imagen.ancho}
-                          height={l.producto.imagen.alto}
+                          src={l.producto.imagen.cuadrada.src}
+                          alt={l.producto.imagen.cuadrada.alt}
+                          width={l.producto.imagen.cuadrada.ancho}
+                          height={l.producto.imagen.cuadrada.alto}
+                          loading="lazy"
                           className="size-full object-cover"
                         />
                       ) : (
@@ -153,9 +165,16 @@ export function CarritoDrawer({ onIrAlCheckout }: { onIrAlCheckout: () => void }
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-texto">
-                          {l.producto.nombre}
-                        </h3>
+                        <div>
+                          <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-texto">
+                            {l.producto.nombre}
+                          </h3>
+                          {l.producto.advertencia && (
+                            <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-acento">
+                              {l.producto.advertencia}
+                            </p>
+                          )}
+                        </div>
                         <button
                           type="button"
                           onClick={() => quitar(l.producto.id)}

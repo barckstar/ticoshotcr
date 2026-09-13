@@ -20,6 +20,7 @@ function producto(id: string, precio: number | null = 8000): Producto {
     litros: 1,
     disponible: true,
     imagen: null,
+    advertencia: null,
   };
 }
 

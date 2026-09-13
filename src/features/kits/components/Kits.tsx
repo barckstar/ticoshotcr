@@ -1,6 +1,8 @@
+import Image from "next/image";
 import { Seccion } from "@/shared/components/ui/Seccion";
 import { Tarjeta } from "@/shared/components/ui/Tarjeta";
 import { Botella } from "@/shared/components/ui/Botella";
+import { IconoFrio } from "@/shared/components/ui/Iconos";
 import { RevelarCascada, ItemCascada } from "@/shared/components/ui/Revelar";
 import type { Producto } from "@/shared/types/producto";
 import type { Kit } from "../lib/kits";
@@ -40,16 +42,41 @@ export function Kits({
           return (
             <ItemCascada key={kit.id}>
               <Tarjeta className="flex h-full flex-col">
-                {/* Las botellas del kit, juntas. Se superponen un poco para
-                    que se lean como un conjunto y no como una fila. */}
-                <div className="flex items-end justify-center gap-0 bg-crema px-6 py-8">
-                  {incluye.map((p, i) => (
-                    <Botella
+                {/*
+                  Las fotos del kit, en RECORTE CUADRADO y en fila.
+
+                  Cuadradas y no verticales: la etiqueta queda entera en cada
+                  una, y tres fotos 4:5 una al lado de otra harian una tarjeta
+                  altisima. Antes eran botellas dibujadas superpuestas; con
+                  fotos reales la superposicion tapa justo las etiquetas, que
+                  es lo unico que distingue un kit de otro.
+                */}
+                <div className="flex gap-1.5 bg-crema p-1.5">
+                  {incluye.map((p) => (
+                    <div
                       key={p.id}
-                      color={p.color}
-                      nombre={p.nombre}
-                      className={`h-44 w-auto drop-shadow-lg ${i > 0 ? "-ml-6" : ""}`}
-                    />
+                      className="relative aspect-square flex-1 overflow-hidden rounded-2xl"
+                    >
+                      {p.imagen ? (
+                        <Image
+                          src={p.imagen.cuadrada.src}
+                          alt={p.imagen.cuadrada.alt}
+                          fill
+                          /* Dos o tres por tarjeta, en una columna de ~365px:
+                             nunca pasa de ~180px de ancho. */
+                          sizes="(max-width: 1024px) 33vw, 180px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="grid size-full place-items-center bg-superficie-alt">
+                          <Botella
+                            color={p.color}
+                            nombre={p.nombre}
+                            className="h-4/5 w-auto"
+                          />
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
 
@@ -81,6 +108,16 @@ export function Kits({
                       <dd className="text-texto">{kit.para}</dd>
                     </div>
                   </dl>
+
+                  {/* Si alguno de los litros del kit necesita frio, se dice
+                      en el kit tambien: quien compra el combo no abre las tres
+                      fichas de producto para enterarse. */}
+                  {incluye.some((p) => p.advertencia) && (
+                    <p className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-acento/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-acento">
+                      <IconoFrio className="size-3.5" />
+                      {incluye.find((p) => p.advertencia)?.advertencia}
+                    </p>
+                  )}
 
                   <div className="mt-auto pt-7">
                     <BotonAgregarKit

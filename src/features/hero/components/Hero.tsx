@@ -29,7 +29,19 @@ export function Hero({ productos }: { productos: Producto[] }) {
   return (
     <section
       id="inicio"
-      className="relative isolate flex min-h-svh flex-col items-center justify-center overflow-hidden pt-24 pb-56 sm:pb-72"
+      /*
+        ALTO: 82svh, no 100svh.
+
+        Un hero de pantalla completa deja al visitante con cero pistas de que
+        hay algo mas abajo; tiene que apostar a que si. Cortandolo antes, el
+        borde de la seccion siguiente ASOMA, y eso es lo que invita a bajar sin
+        tener que ponerle una flechita parpadeando.
+
+        `svh` y no `vh`: en el movil `vh` se mide contra el viewport CON la
+        barra del navegador retraida, asi que al cargar la pagina el hero nace
+        mas alto que la pantalla y el asomo desaparece justo donde importa.
+      */
+      className="relative isolate flex min-h-[82svh] flex-col items-center justify-center overflow-hidden pt-20 pb-48 sm:pb-56"
     >
       {/*
         EL LCP. Un degradado en capas, sin una sola peticion de red: el
@@ -59,20 +71,20 @@ export function Hero({ productos }: { productos: Producto[] }) {
       */}
       <div className="card-scroll relative z-10 px-5">
         <div className="flota">
-          <div className="mx-auto w-full max-w-sm rounded-[2rem] border border-white/60 bg-superficie/85 p-8 text-center shadow-[0_20px_60px_rgba(150,60,30,0.22)] backdrop-blur-md sm:p-10">
+          <div className="mx-auto w-full max-w-sm rounded-[2rem] border border-white/60 bg-superficie/85 p-7 text-center shadow-[0_20px_60px_rgba(150,60,30,0.22)] backdrop-blur-md sm:p-8">
             <Logo
-              className="mx-auto h-32 w-auto text-acento sm:h-40"
+              className="mx-auto h-24 w-auto text-acento sm:h-28"
               conTexto
               titulo={`${negocio.nombre}, 100% artesanal`}
             />
 
-            <p className="mt-6 text-balance text-sm font-medium leading-relaxed text-texto sm:text-base">
+            <p className="mt-5 text-balance text-sm font-medium leading-relaxed text-texto">
               Litros de chiliguaro, miguelito y sangría.
               <br />
               Hechos con amor en {negocio.ciudad} desde el {negocio.desde}.
             </p>
 
-            <div className="mt-7 flex flex-col gap-3">
+            <div className="mt-6 flex flex-col gap-2.5">
               {/* El boton que pidio el cliente. Baja al catalogo, que es
                   donde de verdad se ordena. */}
               <BotonEnlace href="#productos" tamano="lg">
@@ -92,9 +104,19 @@ export function Hero({ productos }: { productos: Producto[] }) {
         </div>
       </div>
 
-      <BandaBotellas productos={productos} />
+      {/*
+        LAS OLAS VAN ANTES QUE LA BANDA, y el orden aqui es el orden de
+        pintado: lo que va despues queda encima.
 
+        Al reves —que era como estaba— las tres capas de ola se pintaban SOBRE
+        las fotos, y las dos de atras son translucidas (55% y 70%): las
+        botellas salian lavadas, como detras de un vidrio esmerilado. Con las
+        fotos encima, las botellas se leen y la ola de adelante sigue cerrando
+        la seccion por debajo de ellas.
+      */}
       <Olas />
+
+      <BandaBotellas productos={productos} />
     </section>
   );
 }

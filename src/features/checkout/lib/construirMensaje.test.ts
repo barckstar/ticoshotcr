@@ -32,6 +32,7 @@ function producto(
     litros: 1,
     disponible: true,
     imagen: null,
+    advertencia: null,
   };
 }
 
