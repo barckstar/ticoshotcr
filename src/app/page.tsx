@@ -39,11 +39,6 @@ const productosDeKit: Record<string, Producto[]> = Object.fromEntries(
   ]),
 );
 
-/** id -> nombre, para que el cotizador escriba "Chiliguaro" y no "chiliguaro". */
-const nombres: Record<string, string> = Object.fromEntries(
-  productos.map((p) => [p.id, p.nombre]),
-);
-
 export default function Inicio() {
   return (
     <main>
@@ -52,7 +47,7 @@ export default function Inicio() {
       <Kits kits={kits} productosDeKit={productosDeKit} />
       <Ritual />
       <Historia />
-      <Eventos nombres={nombres} />
+      <Eventos />
       <Resenas />
       <Entrega />
       <Faq />

@@ -24,16 +24,19 @@ QUE PRODUCE, Y POR QUE CADA UNO
                              corta justo por el medio. Lo usan la miniatura
                              del carrito y las tarjetas de kits.
 
-  marca/logo.webp            El emblema en 512, para el pie y compartir.
   marca/icon-*.png           Favicon en 32, 192 y 512, y el de Apple en 180.
   marca/og.jpg               1200x630 para las vistas previas de WhatsApp y
                              Facebook, compuesto desde la foto de los tres.
+
+  video/hero-poster.webp     La portada del video de la seccion de eventos.
+                             Ver `poster()`.
 
 El JPEG de origen ya viene recomprimido por Instagram, asi que se guarda en
 WebP con calidad 82: por debajo se empiezan a ver bloques en los degradados
 del fondo pintado, que es justo donde mas se nota.
 """
 
+import subprocess
 import sys
 from pathlib import Path
 
@@ -49,8 +52,16 @@ MARCA = RAIZ / "public" / "marca"
 
 CALIDAD = 82
 
-# Los tres litros, mas la foto de familia.
-FOTOS = ["chiliguaro", "miguelito", "sangria", "los-tres"]
+"""
+Los tres litros, y SOLO ellos.
+
+`los-tres.jpg` no esta en esta lista aunque exista en `research/assets/`: es la
+foto de familia y el sitio nunca la sirve suelta. Se usa como ORIGEN de la
+imagen de Open Graph, y ya. Tenerla aqui generaba `los-tres.webp` y
+`los-tres-sq.webp` en `public/`, dos archivos que no referencia nadie — el peor
+tipo de peso muerto, porque parecen en uso.
+"""
+FOTOS = ["chiliguaro", "miguelito", "sangria"]
 
 
 def kb(ruta: Path) -> str:
@@ -94,31 +105,17 @@ def main() -> None:
             guardar_webp(im, PRODUCTOS / f"{nombre}.webp")
             guardar_webp(recorte_cuadrado(im), PRODUCTOS / f"{nombre}-sq.webp", 900)
 
-    print("\nFranja de los tres, para el cotizador:")
-    with Image.open(ORIGEN / "los-tres.jpg") as tres:
-        tres = tres.convert("RGB")
-        """
-        Se recorta ENTRE los dos bloques de texto que la foto trae quemados: el
-        titular de arriba ("LOS QUE NO TE PUEDEN FALTAR") y el remate de abajo
-        ("EN LA HIELERA NI EN NINGUN PLAN"). Lo que queda son las tres botellas
-        con sus etiquetas, que es lo unico que hace falta cuando encima va a ir
-        el resultado del calculo.
-
-        Dos textos superpuestos no se leen ni uno ni otro, y el de la foto no se
-        puede mover.
-        """
-        ancho, alto = tres.size
-        arriba = round(alto * 0.30)  # justo debajo del titular
-        abajo = round(alto * 0.85)  # justo encima del remate
-        guardar_webp(
-            tres.crop((0, arriba, ancho, abajo)),
-            PRODUCTOS / "los-tres-banda.webp",
-        )
-
     print("\nMarca:")
     with Image.open(ORIGEN / "logo.jpg") as logo:
         logo = logo.convert("RGB")
-        guardar_webp(logo, MARCA / "logo.webp", 512)
+        """
+        NO se guarda un logo.webp. El sitio dibuja el emblema con SVG en linea
+        (`shared/components/ui/Logo.tsx`): hereda `currentColor`, escala sin
+        pixelarse y no cuesta una peticion de red. Un PNG del logo aqui seria
+        un archivo que nadie referencia — el peor tipo de peso muerto, porque
+        parece en uso. De esta foto solo salen los ICONOS, que si tienen que
+        ser mapa de bits.
+        """
 
         # Los iconos van en PNG: es lo unico que entienden TODOS los sitios
         # donde termina un favicon, incluidos los que no leen WebP.
@@ -154,5 +151,37 @@ def main() -> None:
         print(f"  {(MARCA / 'og.jpg').relative_to(RAIZ)}  1200x630  {kb(MARCA / 'og.jpg')}")
 
 
+def poster() -> None:
+    """
+    Saca la portada del video de eventos.
+
+    DEL SEGUNDO 7,5, no del primer fotograma. En este video el principio es
+    fondo coral VACIO —las botellas van entrando de a una— asi que un poster
+    del segundo cero seria una portada que no dice que se vende. A los 7,5 ya
+    estan las tres juntas con sus etiquetas.
+
+    Es la misma regla que en la plantilla: la portada tiene que decir que hay
+    dentro. Alli se resolvia usando una foto en vez de un fotograma; aqui el
+    fotograma correcto ES la foto de familia, porque el video termina en ella.
+    """
+    origen = ORIGEN / "hero.mp4"
+    if not origen.exists():
+        print("\n(sin research/assets/hero.mp4: se salta el poster)")
+        return
+
+    destino = RAIZ / "public" / "video" / "hero-poster.webp"
+    destino.parent.mkdir(parents=True, exist_ok=True)
+
+    print("\nPortada del video:")
+    orden = [
+        "ffmpeg", "-y", "-v", "error", "-ss", "7.5", "-i", str(origen),
+        "-frames:v", "1", "-c:v", "libwebp", "-quality", "80", str(destino),
+    ]
+    if subprocess.run(orden).returncode != 0:
+        sys.exit("ffmpeg falló al sacar la portada")
+    print(f"  {destino.relative_to(RAIZ)}  {kb(destino)}")
+
+
 if __name__ == "__main__":
     main()
+    poster()

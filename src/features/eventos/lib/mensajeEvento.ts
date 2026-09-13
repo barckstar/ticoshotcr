@@ -1,10 +1,6 @@
 import { negocio } from "@/shared/config/negocio";
 import { medir, type MensajeMedido } from "@/shared/lib/whatsapp";
-import {
-  etiquetaIntensidad,
-  type Intensidad,
-  type Mezcla,
-} from "./cotizador";
+import { etiquetaIntensidad, type Intensidad } from "./evento";
 
 export type DatosEvento = {
   nombre: string;
@@ -20,23 +16,21 @@ export type DatosEvento = {
 };
 
 /**
- * Arma la cotizacion que llega por WhatsApp.
+ * Arma la consulta de evento que llega por WhatsApp.
  *
  * ES UNA CONSULTA, NO UN PEDIDO, y el mensaje lo dice en la primera linea. La
  * diferencia importa para quien lo recibe: un pedido se prepara, una consulta
  * se responde con un precio. Confundirlos hace que el dueno cocine para una
  * boda que todavia no estaba cerrada.
  *
- * NO LLEVA NINGUN TOTAL EN COLONES. Los precios de los litros todavia no estan
- * confirmados, y aunque lo estuvieran un evento se cotiza a mano: hay traslado,
- * hielo, fecha y cantidad de gente de por medio. Mandar una cifra calculada
- * por el sitio la convierte en una promesa que despues hay que desdecir.
+ * NO LLEVA NINGUN NUMERO CALCULADO POR EL SITIO. Antes mandaba una estimacion
+ * de litros; se quito con el cotizador. El sitio no sabe cuanto toma la gente
+ * de otro, y una cifra con aire de exactitud es como termina alguien con seis
+ * litros de sobra o con la fiesta seca a las nueve. Lo que manda son los DATOS
+ * —cuanta gente, que dia, donde, que ambiente— para que el numero lo ponga
+ * quien lleva cinco anos detras de una barra.
  */
-export function construirMensajeEvento(
-  datos: DatosEvento,
-  litros: number,
-  mezcla: Mezcla[],
-): MensajeMedido {
+export function construirMensajeEvento(datos: DatosEvento): MensajeMedido {
   const partes: string[] = [
     `*CONSULTA DE EVENTO — ${negocio.nombre}*`,
     "",
@@ -47,24 +41,13 @@ export function construirMensajeEvento(
     `Fecha: ${datos.fecha}`,
     `Lugar: ${datos.lugar}`,
     `Ambiente: ${etiquetaIntensidad[datos.intensidad]}`,
-    "",
-    `*Cálculo del sitio: ${litros} ${litros === 1 ? "litro" : "litros"} de Ticoshot*`,
   ];
-
-  for (const m of mezcla) {
-    partes.push(`${m.litros}x ${m.nombre}`);
-  }
 
   if (datos.notas) partes.push("", `Nota: ${datos.notas}`);
 
-  /*
-    Que el calculo es una estimacion va EN EL MENSAJE y no solo en la pantalla.
-    Quien lo recibe tiene que poder decir "son mas" sin quedar como que
-    incumple algo que el sitio ya habia prometido.
-  */
   partes.push(
     "",
-    "Los litros son una estimación del sitio y solo cubren lo de Ticoshot. Me interesa también el servicio de barra. Quedo atento a su recomendación y al precio.",
+    "Me interesa el servicio de barra. Quedo atento a su recomendación y al precio.",
   );
 
   return medir(partes.join("\n"));

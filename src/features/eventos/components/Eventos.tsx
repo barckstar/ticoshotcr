@@ -1,38 +1,26 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { Seccion } from "@/shared/components/ui/Seccion";
 import { Tarjeta } from "@/shared/components/ui/Tarjeta";
 import { Boton } from "@/shared/components/ui/Boton";
 import { IconoWhatsApp } from "@/shared/components/ui/Iconos";
 import { enviarPorWhatsApp } from "@/shared/lib/whatsapp";
-import {
-  etiquetaIntensidad,
-  shotsPorPersona,
-  litrosParaPersonas,
-  repartirLitros,
-  MAX_PERSONAS,
-  type Intensidad,
-} from "../lib/cotizador";
-import { explicarCalculo } from "../lib/cotizador";
+import { etiquetaIntensidad, MAX_PERSONAS, type Intensidad } from "../lib/evento";
 import { construirMensajeEvento } from "../lib/mensajeEvento";
 import { ServicioBarra } from "./ServicioBarra";
 
 /**
- * Eventos y catering, con el cotizador dentro.
+ * Eventos y catering.
  *
- * VA EN LA SECCION Y NO EN UN DRAWER, a diferencia del carrito y el checkout.
- * El spec decia drawer y se cambio al escribirlo por una razon concreta: el
- * calculo ES el contenido de esta seccion, no un paso posterior. Metido en un
- * drawer, quien baja ve un boton que dice "cotizar" y tiene que decidir si
- * abrirlo sin saber que hay dentro; inline, ve el numero cambiar mientras
- * escribe y eso es justo lo que lo engancha. El drawer se reserva para lo que
- * interrumpe una tarea — el pedido —, no para lo que la seccion viene a hacer.
+ * AQUI HABIA UN COTIZADOR DE LITROS y se quito a pedido del cliente. La razon
+ * de fondo es buena: los shots por persona los habia puesto el programador, no
+ * el bartender, y un numero inventado que el sitio presenta como calculo es
+ * peor que no dar ninguno. Quien lleva mas de cinco anos de barra sabe cuanto
+ * se toma en una fiesta de sesenta personas; el sitio no.
  *
- * EL CALCULO ES SINCRONO Y LOCAL. No hay peticion de red ni estado que
- * sincronizar: `useMemo` sobre dos numeros. Por eso se puede permitir
- * recalcular en cada tecla.
+ * En su lugar va el VIDEO de las tres botellas, y el formulario recoge los
+ * datos para que el numero lo ponga quien sabe.
  */
 
 const tipos = [
@@ -44,7 +32,7 @@ const tipos = [
   "Otro",
 ] as const;
 
-export function Eventos({ nombres }: { nombres: Record<string, string> }) {
+export function Eventos() {
   const [personas, setPersonas] = useState("");
   const [intensidad, setIntensidad] = useState<Intensidad>("normal");
   const [tipo, setTipo] = useState<string>(tipos[0]);
@@ -55,12 +43,31 @@ export function Eventos({ nombres }: { nombres: Record<string, string> }) {
   const [notas, setNotas] = useState("");
   const [intentado, setIntentado] = useState(false);
 
-  const cantidad = Number(personas);
-  const litros = litrosParaPersonas(cantidad, intensidad);
-  const mezcla = useMemo(
-    () => repartirLitros(litros, nombres),
-    [litros, nombres],
-  );
+  const video = useRef<HTMLVideoElement>(null);
+
+  /*
+    `prefers-reduced-motion` no se puede resolver desde CSS: esconder un video
+    no lo pausa, solo lo hace invisible mientras sigue corriendo y gastando
+    bateria. Pausado se queda en su poster, que son las tres botellas.
+  */
+  useEffect(() => {
+    const consulta = window.matchMedia("(prefers-reduced-motion: reduce)");
+    function aplicar() {
+      const el = video.current;
+      if (!el) return;
+      if (consulta.matches) {
+        el.pause();
+        el.currentTime = 0;
+      } else {
+        // Se rechaza si el navegador bloquea el autoplay. No es un error: es
+        // su decision, y el poster deja el bloque perfectamente presentable.
+        void el.play().catch(() => {});
+      }
+    }
+    aplicar();
+    consulta.addEventListener("change", aplicar);
+    return () => consulta.removeEventListener("change", aplicar);
+  }, []);
 
   /*
     Solo tres campos son obligatorios: nombre, telefono y cuanta gente. La
@@ -68,29 +75,26 @@ export function Eventos({ nombres }: { nombres: Record<string, string> }) {
     precios todavia no tiene fecha, y exigirsela es la forma mas rapida de
     perderlo.
   */
+  const cantidad = Number(personas);
   const faltaNombre = nombre.trim().length < 2;
   const faltaTelefono = telefono.trim().length < 8;
-  const faltaPersonas = litros === 0;
+  const faltaPersonas = !Number.isFinite(cantidad) || cantidad < 1;
   const listo = !faltaNombre && !faltaTelefono && !faltaPersonas;
 
   function enviar() {
     setIntentado(true);
     if (!listo) return;
 
-    const { texto } = construirMensajeEvento(
-      {
-        nombre: nombre.trim(),
-        telefono: telefono.trim(),
-        personas: Math.min(Math.floor(cantidad), MAX_PERSONAS),
-        intensidad,
-        fecha: fecha.trim() || "Todavía sin definir",
-        lugar: lugar.trim() || "Por confirmar",
-        tipo,
-        notas: notas.trim(),
-      },
-      litros,
-      mezcla,
-    );
+    const { texto } = construirMensajeEvento({
+      nombre: nombre.trim(),
+      telefono: telefono.trim(),
+      personas: Math.min(Math.floor(cantidad), MAX_PERSONAS),
+      intensidad,
+      fecha: fecha.trim() || "Todavía sin definir",
+      lugar: lugar.trim() || "Por confirmar",
+      tipo,
+      notas: notas.trim(),
+    });
 
     enviarPorWhatsApp(texto);
   }
@@ -111,106 +115,58 @@ export function Eventos({ nombres }: { nombres: Record<string, string> }) {
     >
       <ServicioBarra />
 
-      <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-12">
+      <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
         <div>
-          <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-texto">
-            ¿Cuántos litros para tu fiesta?
-          </h3>
-          <p className="mt-3 leading-relaxed text-texto-suave">
-            Poné cuánta gente va y el sitio calcula de cuántos litros de lo
-            nuestro estamos hablando. Es un punto de partida para la
-            conversación, no una cotización: el resto de la barra y el precio se
-            arman por WhatsApp según la fecha, el lugar y qué toma tu gente.
+          <p className="text-lg leading-relaxed text-texto">
+            Contanos de tu evento y te armamos la barra. El precio se acuerda
+            por WhatsApp según la fecha, el lugar, cuánta gente va y qué toma tu
+            gente.
           </p>
 
           {/*
-            EL RESULTADO, sobre la foto de los tres. Va arriba en móvil, donde
-            se ve sin bajar.
+            EL VIDEO.
 
-            EL VELO NO ES DECORACIÓN, ES LO QUE HACE LEGIBLE EL TEXTO. La foto
-            es coral brillante, y blanco sobre ese coral mide 2,32:1 cuando AA
-            exige 4,5:1 — el mismo problema que tiene su Instagram y que está
-            documentado arriba de globals.css.
+            LLEVA `poster`, a diferencia de como habria ido en el hero. Alli un
+            poster convierte al video en candidato a LCP y la nota de
+            rendimiento pasa a depender de que baje una imagen mas; aqui esta
+            muy por debajo del pliegue, asi que el poster no cuesta nada y evita
+            el rectangulo NEGRO que pinta un <video> sin datos.
 
-            Medido en el PEOR CASO, o sea suponiendo que debajo hubiera blanco
-            puro: el marrón #2A1410 al 68% da 6,15:1 y al 84% da 8,9:1. Sobre
-            los píxeles reales de la foto, que son más oscuros, el margen es
-            mayor. Más fuerte abajo, que es donde va la lista de litros en
-            cuerpo pequeño.
+            El poster es el SEGUNDO 7,5, donde ya estan las tres botellas
+            juntas. El primer fotograma es fondo coral vacio: una portada que
+            no dice que se vende.
+
+            `preload="none"`: el video no se descarga hasta que el navegador
+            decide, y hasta entonces lo que se ve es el poster — 44 KB contra
+            los 267 KB del video.
           */}
-          <div className="relative mt-8 overflow-hidden rounded-3xl">
-            <Image
-              src="/productos/los-tres-banda.webp"
-              alt=""
-              fill
-              /* Una columna de ~45% de 1152px. */
-              sizes="(max-width: 1024px) 100vw, 520px"
-              className="object-cover"
-            />
-            <div
+          <div className="mt-7 overflow-hidden rounded-3xl ring-1 ring-borde">
+            <video
+              ref={video}
+              className="aspect-4/5 w-full object-cover"
+              poster="/video/hero-poster.webp"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="none"
+              /* Decorativo: los tres productos estan escritos en el catalogo.
+                 Anunciarlo aqui seria repetirlo. */
               aria-hidden="true"
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(to bottom, rgb(42 20 16 / 0.68), rgb(42 20 16 / 0.84))",
-              }}
-            />
-
-            <div className="relative p-7 text-white">
-              <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-white/85">
-                Para{" "}
-                {litros > 0 ? `${Math.floor(cantidad)} personas` : "tu fiesta"}
-              </p>
-
-              <p className="mt-2 font-display text-5xl font-bold tracking-tight">
-                {litros > 0 ? litros : "—"}
-                <span className="ml-2 text-xl font-semibold">
-                  {litros === 1 ? "litro" : "litros"}
-                </span>
-              </p>
-
-              {/*
-              LA CUENTA, ESCRITA. Sin esto el cotizador devuelve "12 litros" y
-              no hay forma de discutirlo: o se le cree o no. Con el supuesto a
-              la vista, quien organiza la fiesta puede decir "nosotros tomamos
-              mas que eso", que es la conversacion que hay que tener ANTES de
-              comprar. Ver el comentario largo en cotizador.ts.
-            */}
-              {litros > 0 && (
-                <p className="mt-3 text-sm text-white/85">
-                  {explicarCalculo(cantidad, intensidad, litros)}
-                </p>
-              )}
-
-              {mezcla.length > 0 ? (
-                <ul className="mt-5 space-y-1.5 border-t border-white/25 pt-5">
-                  {mezcla.map((m) => (
-                    <li
-                      key={m.id}
-                      className="flex justify-between gap-4 text-sm"
-                    >
-                      <span>{m.nombre}</span>
-                      <span className="font-semibold tabular-nums">
-                        {m.litros} {m.litros === 1 ? "litro" : "litros"}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-5 border-t border-white/25 pt-5 text-sm text-white/90">
-                  Escribí cuánta gente va y aparece el cálculo.
-                </p>
-              )}
-            </div>
+              tabIndex={-1}
+            >
+              <source src="/video/hero.mp4" type="video/mp4" />
+            </video>
           </div>
         </div>
 
-        <Tarjeta className="p-7 sm:p-8">
+        <Tarjeta className="h-fit p-7 sm:p-8">
           {/*
             `noValidate` y validacion propia: los globos del navegador salen en
             el idioma del sistema, asi que a un tico con el telefono en ingles
             le aparece "Please fill out this field" en medio de una pagina en
-            espanol.
+            espanol — y encima bloquea el envio antes de que se vean los
+            mensajes en espanol que hay escritos aqui.
           */}
           <form
             noValidate
@@ -246,9 +202,7 @@ export function Eventos({ nombres }: { nombres: Record<string, string> }) {
             </div>
 
             <fieldset>
-              <legend className={etiqueta}>
-                ¿Cómo va a estar el ambiente?
-              </legend>
+              <legend className={etiqueta}>¿Cómo va a estar el ambiente?</legend>
               <div className="mt-2 space-y-2">
                 {(Object.keys(etiquetaIntensidad) as Intensidad[]).map((op) => (
                   <label
@@ -267,12 +221,7 @@ export function Eventos({ nombres }: { nombres: Record<string, string> }) {
                       onChange={() => setIntensidad(op)}
                       className="size-4 accent-[var(--color-acento)]"
                     />
-                    <span>
-                      {etiquetaIntensidad[op]}
-                      <span className="ml-1 font-normal text-texto-suave">
-                        · {shotsPorPersona[op]} shots por persona
-                      </span>
-                    </span>
+                    {etiquetaIntensidad[op]}
                   </label>
                 ))}
               </div>

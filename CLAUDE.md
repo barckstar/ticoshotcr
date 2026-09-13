@@ -70,6 +70,16 @@ vez, sin que nada avise.
 Historia, trayectoria y quiénes somos **son una sola sección** con línea de
 tiempo dentro: eran la misma información tres veces.
 
+**Eventos NO tiene cotizador, y se quitó a propósito.** Calculaba litros con
+`personas × shots ÷ 20`, pero esos shots por persona los había puesto el
+programador, no el bartender. Un número inventado que el sitio presenta como
+cálculo es peor que no dar ninguno: quien lleva más de cinco años de barra sabe
+cuánto se toma en una fiesta de sesenta personas, el sitio no. En su lugar va el
+video de las tres botellas, y el formulario recoge los datos para que el número
+lo ponga quien sabe. Hay una prueba que verifica que el mensaje de WhatsApp
+**no** lleva ninguna cantidad calculada, para que nadie lo reintroduzca sin
+darse cuenta.
+
 **Eventos no pasa por el carrito.** Una boda de 120 personas es una cotización,
 no una compra con precio cerrado. Dos flujos que terminan los dos en WhatsApp:
 `construirMensajePedido` y `construirMensajeEvento`.
@@ -278,13 +288,6 @@ El cuadrado se ancla abajo y no al centro porque en las tres fotos la etiqueta
 vive en la mitad inferior: un recorte centrado —que es lo que hace todo el
 mundo por defecto— la parte justo por la mitad y deja una miniatura que no dice
 qué producto es.
-
-**El resultado del cotizador va sobre la foto de los tres**, no sobre un
-bloque rojo plano. Lleva un velo marrón medido —68% arriba, 84% abajo— porque
-blanco sobre ese coral mide 2,32:1 y AA exige 4,5:1; en el peor caso posible,
-suponiendo blanco puro debajo, el velo da 6,15:1. La foto va recortada **entre**
-los dos bloques de texto que trae quemados: dos textos superpuestos no se leen
-ni uno ni otro, y el de la foto no se puede mover.
 
 **Las olas se pintan ANTES que la banda de fotos.** El orden en el JSX es el
 orden de pintado: al revés, las dos capas de ola translúcidas (55% y 70%)
