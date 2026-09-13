@@ -188,25 +188,21 @@ body {
 }
 
 /* ============================================================
-   El video de fondo del hero.
+   La secuencia de fotogramas del hero.
 
-   Entra con una transicion de opacidad cuando el navegador
-   avisa que ya puede reproducirlo (`onCanPlay` pone
-   `data-listo`). Sin eso, el paso de degradado a video es un
-   corte seco: el primer fotograma aparece de golpe y se lee
-   como un parpadeo.
+   Entra con una transicion de opacidad cuando hay ALGO
+   dibujado, no cuando el canvas se monta: un <canvas> vacio
+   pinta NEGRO, y medio segundo de rectangulo negro tapando el
+   degradado coral es peor que no tener secuencia.
 
-   Empieza en 0 y no en 1 porque un <video> sin datos pinta
-   NEGRO en varios navegadores, y un rectangulo negro tapando
-   el degradado coral durante medio segundo es peor que no
-   tener video.
+   Lo pone SecuenciaHero.tsx al primer `drawImage`.
    ============================================================ */
-.video-hero {
+.secuencia-hero {
   opacity: 0;
-  transition: opacity 0.7s ease-out;
+  transition: opacity 0.6s ease-out;
 }
 
-.video-hero[data-listo="true"] {
+.secuencia-hero[data-listo="true"] {
   opacity: 1;
 }
 
@@ -292,25 +288,7 @@ body {
     }
   }
 
-  /*
-    PARALLAX DEL VIDEO. Se mueve HACIA ABAJO mientras la pagina sube, o sea
-    menos que el scroll: eso es lo que el ojo lee como que esta mas lejos.
 
-    Tambien crece un poco. Sin ese `scale`, al desplazarlo asomaria el borde
-    de arriba del video y se veria una franja del degradado cortada en seco.
-  */
-  @keyframes fondo-al-bajar {
-    to {
-      transform: translate3d(0, 16vh, 0) scale(1.18);
-    }
-  }
-
-  .capa-parallax {
-    animation: fondo-al-bajar linear both;
-    animation-timeline: scroll(root);
-    animation-range: 0 100svh;
-    will-change: transform;
-  }
 
   /* Las olas se separan: la de adelante corre mas que la de atras. */
   @keyframes ola-al-bajar {
@@ -324,7 +302,16 @@ body {
     animation-timeline: scroll(root);
     /* Termina antes del final del hero: no debe seguir girando a mitad de la
        seccion siguiente, donde ya nadie la esta mirando. */
-    animation-range: 0 78svh;
+    /*
+      EMPIEZA AL 60% DEL RECORRIDO, no en cuanto se toca el scroll.
+
+      El hero esta fijado a lo largo de 200svh y el scrub ocupa los primeros
+      100svh de recorrido. Si la tarjeta se fuera desde el primer pixel, se
+      llevaria el boton "Ordenar" justo mientras el visitante todavia esta
+      mirando pasar las botellas. Sale en el ultimo tramo, cuando el recorrido
+      ya conto lo que tenia que contar.
+    */
+    animation-range: 120svh 195svh;
     will-change: transform, opacity;
   }
 
@@ -547,12 +534,11 @@ html {
   }
 
   /*
-    El video se detiene desde JavaScript, no desde aqui: esconderlo con CSS no
-    lo pausa, solo lo hace invisible mientras sigue corriendo y gastando
-    bateria. Ver VideoFondo.tsx. Lo que si se apaga aqui es su transicion de
-    entrada, para que aparezca ya puesto.
+    La secuencia se queda QUIETA en el primer fotograma: eso lo decide
+    SecuenciaHero.tsx, que con movimiento reducido no se suscribe al scroll.
+    Aqui solo se apaga su transicion de entrada, para que aparezca ya puesta.
   */
-  .video-hero {
+  .secuencia-hero {
     opacity: 1 !important;
     transition: none !important;
   }
@@ -563,7 +549,6 @@ html {
   .revelar-inmediato,
   .garabato,
   .card-scroll,
-  .capa-parallax,
   .ola-scroll {
     opacity: 1 !important;
     transform: none !important;

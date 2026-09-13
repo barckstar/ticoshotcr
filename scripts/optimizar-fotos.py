@@ -29,7 +29,7 @@ QUE PRODUCE, Y POR QUE CADA UNO
   marca/og.jpg               1200x630 para las vistas previas de WhatsApp y
                              Facebook, compuesto desde la foto de los tres.
 
-  video/hero.mp4             El video del hero, recomprimido. Ver `video()`.
+  hero/f-###.webp            Los 64 fotogramas del hero. Ver `secuencia()`.
 
 El JPEG de origen ya viene recomprimido por Instagram, asi que se guarda en
 WebP con calidad 82: por debajo se empiezan a ver bloques en los degradados
@@ -97,6 +97,27 @@ def main() -> None:
             guardar_webp(im, PRODUCTOS / f"{nombre}.webp")
             guardar_webp(recorte_cuadrado(im), PRODUCTOS / f"{nombre}-sq.webp", 900)
 
+    print("\nFranja de los tres, para el cotizador:")
+    with Image.open(ORIGEN / "los-tres.jpg") as tres:
+        tres = tres.convert("RGB")
+        """
+        Se recorta ENTRE los dos bloques de texto que la foto trae quemados: el
+        titular de arriba ("LOS QUE NO TE PUEDEN FALTAR") y el remate de abajo
+        ("EN LA HIELERA NI EN NINGUN PLAN"). Lo que queda son las tres botellas
+        con sus etiquetas, que es lo unico que hace falta cuando encima va a ir
+        el resultado del calculo.
+
+        Dos textos superpuestos no se leen ni uno ni otro, y el de la foto no se
+        puede mover.
+        """
+        ancho, alto = tres.size
+        arriba = round(alto * 0.30)  # justo debajo del titular
+        abajo = round(alto * 0.85)  # justo encima del remate
+        guardar_webp(
+            tres.crop((0, arriba, ancho, abajo)),
+            PRODUCTOS / "los-tres-banda.webp",
+        )
+
     print("\nMarca:")
     with Image.open(ORIGEN / "logo.jpg") as logo:
         logo = logo.convert("RGB")
@@ -136,44 +157,69 @@ def main() -> None:
         print(f"  {(MARCA / 'og.jpg').relative_to(RAIZ)}  1200x630  {kb(MARCA / 'og.jpg')}")
 
 
-def video() -> None:
+def secuencia() -> None:
     """
-    Recomprime el video del hero.
+    Trocea el video del hero en la secuencia de fotogramas que dibuja el canvas.
 
-    SOLO MP4, sin WebM. Se probaron los dos: VP9 a CRF 38 salio en 347 KB
-    contra los 267 KB del H.264 a CRF 31 — mas grande Y menos compatible. En un
-    video de ocho segundos, de fondo pintado y movimiento lento, VP9 no tiene
-    de donde sacar ventaja. Servir dos formatos cuando uno gana en las dos
-    cosas es trabajo de mantenimiento a cambio de nada.
+    POR QUE FOTOGRAMAS SUELTOS Y NO EL VIDEO. La tecnica se llama
+    *scroll-driven image sequence* y es la que usa Apple en las paginas de los
+    AirPods. Scrubear un <video> moviendole `currentTime` le pide al
+    decodificador que busque un fotograma arbitrario en tiempo real: va a
+    tirones y en Safari de iPhone es donde peor se porta. Dibujar una imagen ya
+    descargada es instantaneo. Ver `SecuenciaHero.tsx`.
 
-    SIN PISTA DE AUDIO (`-an`). No la necesita, y un video CON pista de audio
-    —aunque venga en silencio— hace que varios navegadores traten el autoplay
-    como si tuviera sonido y lo bloqueen.
+    LOS NUMEROS SALEN DE MEDIR, no de elegir bonito. Se probaron cinco
+    combinaciones sobre este video de 8 segundos (tamanos en disco, que
+    redondean por bloque; el elegido pesa 872 KB de bytes reales):
 
-    `+faststart` mueve el indice al principio del archivo: sin eso el navegador
-    tiene que descargarlo entero antes de pintar el primer fotograma.
+        fps  ancho  calidad   en disco
+          8    640       72    1372 KB
+          8    640       55    1128 KB
+          8    540       60    1004 KB   <- el elegido (872 KB reales)
+          6    540       60     760 KB   (48 fotogramas: el scrub va a saltos)
+          8    480       62     904 KB
+
+    8 fotogramas por segundo son 64 en total, que es donde el recorrido deja de
+    notarse escalonado. Bajar a 6 ahorra 244 KB y se ve a saltos — el fondo es
+    pintado y suave, asi que lo que se nota no es la nitidez sino el salto.
     """
     origen = ORIGEN / "hero.mp4"
     if not origen.exists():
-        print("\n(sin research/assets/hero.mp4: se salta el video)")
+        print("\n(sin research/assets/hero.mp4: se salta la secuencia)")
         return
 
-    destino = RAIZ / "public" / "video" / "hero.mp4"
-    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino = RAIZ / "public" / "hero"
+    destino.mkdir(parents=True, exist_ok=True)
+    for viejo in destino.glob("*.webp"):
+        viejo.unlink()
 
-    print("\nVideo del hero:")
+    print("\nSecuencia del hero:")
     orden = [
         "ffmpeg", "-y", "-v", "error", "-i", str(origen),
-        "-an",
-        "-c:v", "libx264", "-crf", "31", "-preset", "slow",
-        "-pix_fmt", "yuv420p", "-movflags", "+faststart",
-        str(destino),
+        "-vf", "fps=8,scale=540:-2",
+        "-c:v", "libwebp", "-quality", "60", "-compression_level", "6",
+        str(destino / "f-%03d.webp"),
     ]
     if subprocess.run(orden).returncode != 0:
-        sys.exit("ffmpeg falló al comprimir el video")
-    print(f"  {destino.relative_to(RAIZ)}  {kb(destino)}")
+        sys.exit("ffmpeg falló al extraer los fotogramas")
+
+    cuadros = sorted(destino.glob("*.webp"))
+    total = sum(f.stat().st_size for f in cuadros)
+    print(f"  {destino.relative_to(RAIZ)}/f-###.webp  "
+          f"{len(cuadros)} fotogramas  {total / 1024:.0f} KB")
+
+    """
+    El conteo va ESCRITO en el componente (`TOTAL = 64`). Si un dia se cambian
+    los fps aqui y alla no, el canvas pide fotogramas que no existen o deja
+    fuera los ultimos, y no lo caza nada. Que reviente el script.
+    """
+    if len(cuadros) != 64:
+        sys.exit(
+            f"Salieron {len(cuadros)} fotogramas y SecuenciaHero.tsx espera 64. "
+            "Actualizá TOTAL ahí o los fps de aquí."
+        )
 
 
 if __name__ == "__main__":
     main()
-    video()
+    secuencia()

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { Seccion } from "@/shared/components/ui/Seccion";
 import { Tarjeta } from "@/shared/components/ui/Tarjeta";
 import { Boton } from "@/shared/components/ui/Boton";
@@ -110,7 +111,6 @@ export function Eventos({ nombres }: { nombres: Record<string, string> }) {
     >
       <ServicioBarra />
 
-
       <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-12">
         <div>
           <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-texto">
@@ -123,49 +123,86 @@ export function Eventos({ nombres }: { nombres: Record<string, string> }) {
             arman por WhatsApp según la fecha, el lugar y qué toma tu gente.
           </p>
 
-          {/* EL RESULTADO. Va arriba en móvil, donde se ve sin bajar. */}
-          <Tarjeta fondo="bg-acento ring-acento" className="mt-8 p-7 text-white">
-            <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-white/85">
-              Para {litros > 0 ? `${Math.floor(cantidad)} personas` : "tu fiesta"}
-            </p>
+          {/*
+            EL RESULTADO, sobre la foto de los tres. Va arriba en móvil, donde
+            se ve sin bajar.
 
-            <p className="mt-2 font-display text-5xl font-bold tracking-tight">
-              {litros > 0 ? litros : "—"}
-              <span className="ml-2 text-xl font-semibold">
-                {litros === 1 ? "litro" : "litros"}
-              </span>
-            </p>
+            EL VELO NO ES DECORACIÓN, ES LO QUE HACE LEGIBLE EL TEXTO. La foto
+            es coral brillante, y blanco sobre ese coral mide 2,32:1 cuando AA
+            exige 4,5:1 — el mismo problema que tiene su Instagram y que está
+            documentado arriba de globals.css.
 
-            {/*
+            Medido en el PEOR CASO, o sea suponiendo que debajo hubiera blanco
+            puro: el marrón #2A1410 al 68% da 6,15:1 y al 84% da 8,9:1. Sobre
+            los píxeles reales de la foto, que son más oscuros, el margen es
+            mayor. Más fuerte abajo, que es donde va la lista de litros en
+            cuerpo pequeño.
+          */}
+          <div className="relative mt-8 overflow-hidden rounded-3xl">
+            <Image
+              src="/productos/los-tres-banda.webp"
+              alt=""
+              fill
+              /* Una columna de ~45% de 1152px. */
+              sizes="(max-width: 1024px) 100vw, 520px"
+              className="object-cover"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(to bottom, rgb(42 20 16 / 0.68), rgb(42 20 16 / 0.84))",
+              }}
+            />
+
+            <div className="relative p-7 text-white">
+              <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-white/85">
+                Para{" "}
+                {litros > 0 ? `${Math.floor(cantidad)} personas` : "tu fiesta"}
+              </p>
+
+              <p className="mt-2 font-display text-5xl font-bold tracking-tight">
+                {litros > 0 ? litros : "—"}
+                <span className="ml-2 text-xl font-semibold">
+                  {litros === 1 ? "litro" : "litros"}
+                </span>
+              </p>
+
+              {/*
               LA CUENTA, ESCRITA. Sin esto el cotizador devuelve "12 litros" y
               no hay forma de discutirlo: o se le cree o no. Con el supuesto a
               la vista, quien organiza la fiesta puede decir "nosotros tomamos
               mas que eso", que es la conversacion que hay que tener ANTES de
               comprar. Ver el comentario largo en cotizador.ts.
             */}
-            {litros > 0 && (
-              <p className="mt-3 text-sm text-white/85">
-                {explicarCalculo(cantidad, intensidad, litros)}
-              </p>
-            )}
+              {litros > 0 && (
+                <p className="mt-3 text-sm text-white/85">
+                  {explicarCalculo(cantidad, intensidad, litros)}
+                </p>
+              )}
 
-            {mezcla.length > 0 ? (
-              <ul className="mt-5 space-y-1.5 border-t border-white/25 pt-5">
-                {mezcla.map((m) => (
-                  <li key={m.id} className="flex justify-between gap-4 text-sm">
-                    <span>{m.nombre}</span>
-                    <span className="font-semibold tabular-nums">
-                      {m.litros} {m.litros === 1 ? "litro" : "litros"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-5 border-t border-white/25 pt-5 text-sm text-white/90">
-                Escribí cuánta gente va y aparece el cálculo.
-              </p>
-            )}
-          </Tarjeta>
+              {mezcla.length > 0 ? (
+                <ul className="mt-5 space-y-1.5 border-t border-white/25 pt-5">
+                  {mezcla.map((m) => (
+                    <li
+                      key={m.id}
+                      className="flex justify-between gap-4 text-sm"
+                    >
+                      <span>{m.nombre}</span>
+                      <span className="font-semibold tabular-nums">
+                        {m.litros} {m.litros === 1 ? "litro" : "litros"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-5 border-t border-white/25 pt-5 text-sm text-white/90">
+                  Escribí cuánta gente va y aparece el cálculo.
+                </p>
+              )}
+            </div>
+          </div>
         </div>
 
         <Tarjeta className="p-7 sm:p-8">
@@ -209,7 +246,9 @@ export function Eventos({ nombres }: { nombres: Record<string, string> }) {
             </div>
 
             <fieldset>
-              <legend className={etiqueta}>¿Cómo va a estar el ambiente?</legend>
+              <legend className={etiqueta}>
+                ¿Cómo va a estar el ambiente?
+              </legend>
               <div className="mt-2 space-y-2">
                 {(Object.keys(etiquetaIntensidad) as Intensidad[]).map((op) => (
                   <label

@@ -197,46 +197,68 @@ el envío, y los mensajes en español que hay escritos no se ven nunca.
 - **Tope de 1500 caracteres codificados en el mensaje de WhatsApp.** iOS trunca
   antes y **en silencio**: el pedido llega a medias y nadie se entera.
 
-## El hero
+## El hero — secuencia de fotogramas con el scroll
 
-Lo único sobre el pliegue.
+La técnica se llama **scroll-driven image sequence** (o *image sequence
+scrubbing*): la que Apple popularizó en las páginas de los AirPods Pro.
 
-**Lleva video, y la primera versión no.** Lo que cambió no es el criterio sino
-cómo se paga: el video va **sin `poster`**, y sin poster deja de ser candidato a
-LCP — el candidato vuelve a ser el bloque de texto de la tarjeta, que ya viene
-en el HTML. Detrás hay un degradado del mismo atardecer coral, así que mientras
-el video carga no se ve un hueco negro sino la misma escena, quieta. El archivo
-son 267 KB: 8 s, sin audio, con el índice al principio.
+**Es un `<canvas>`, no un `<video>`, y eso es lo importante.** Si uno inspecciona
+esas páginas de Apple no encuentra un video: encuentra un canvas al que se le
+dibuja una secuencia de imágenes, como un folioscopio. Scrubear un `<video>`
+moviéndole `currentTime` le pide al **decodificador** que busque un fotograma
+arbitrario en tiempo real: va a tirones, cambia de un dispositivo a otro, y en
+Safari de iPhone —donde va a estar casi todo el tráfico— es donde peor se porta.
+Dibujar una imagen ya descargada es instantáneo.
 
-**Sigue pendiente medirlo.** Está razonado, no medido — ver `PENDIENTE.md` §6.
+**Cómo está montado.** La sección mide `200svh` y su contenido va `sticky`
+pegado arriba. Al bajar, la página se mueve pero el hero se queda quieto: esa
+pantalla de recorrido es la que hace avanzar los 64 fotogramas y al final suelta
+la tarjeta.
 
-El video **reemplazó a la banda de fotos y a los garabatos**: los dos hacían ya
-lo que hace el video, y tenerlos a la vez eran tres movimientos distintos
-peleándose en la misma pantalla.
+**Dos pantallas y no cuatro.** Un scrub de Apple ocupa tres o cuatro, pero Apple
+está contando la historia de un producto; aquí el objetivo es que la gente llegue
+al catálogo y ordene. Cada pantalla de más es una pantalla más entre el visitante
+y el botón de comprar. Y durante todo el recorrido **"Ordenar" sigue en
+pantalla**, porque la tarjeta está fijada con el resto.
 
-- **LCP:** un degradado en capas de `radial-gradient`. Se pinta con el HTML.
-- **Olas:** tres SVG en línea con el path duplicado y `width: 200%`, corriendo
-  un `-50%` exacto — de ahí el bucle sin costura. Velocidades 41s/27s/17s: el
-  parallax sale de la diferencia, no de un cálculo.
-- **Reacción al scroll:** `animation-timeline: scroll(root)` nativo, todo dentro
-  de `@supports`. Donde no exista, las animaciones siguen en bucle. **El
-  respaldo nunca puede ser "no se mueve nada".** El video hace parallax —se
-  mueve menos que el scroll, que es lo que el ojo lee como lejanía— y la
-  tarjeta **da una vuelta entera** mientras viaja a la derecha.
-- **La vuelta es `rotate`, no `rotateY`.** Un giro en el eje Y pasa por el dorso
-  de la tarjeta: entre los 90 y los 270 grados se vería el logo espejado, o con
+**Lo que cuesta:** 64 fotogramas = **872 KB**, contra los 267 KB que pesaba el
+video. Se paga así:
+
+- **El LCP no cambia.** Un `<canvas>` no es candidato a LCP: el candidato sigue
+  siendo el bloque de texto de la tarjeta, que ya viene en el HTML.
+- **Detrás hay un degradado** en capas, sin una sola petición de red, del mismo
+  atardecer coral. Mientras no ha bajado un fotograma, el hero se ve igual pero
+  quieto.
+- **La descarga arranca después del primer pintado**, y se dibuja siempre el
+  fotograma más cercano que ya haya llegado: la secuencia se afina mientras se
+  usa en vez de esperar a estar completa.
+
+**Sigue pendiente medirlo con Lighthouse.** Está razonado, no medido.
+
+### Reglas del hero
+
+- **El primer dibujo es síncrono, el resto van por `requestAnimationFrame`.**
+  rAF no corre en una pestaña de fondo: si el primer fotograma lo esperara,
+  quien abre el sitio en una pestaña que no está mirando volvería a ella y
+  encontraría el canvas vacío hasta tocar el scroll.
+- **`object-fit: cover` se hace a mano** en el canvas, que no tiene esa
+  propiedad. Sin eso un fotograma 9:16 sobre una pantalla ancha sale aplastado.
+- **`prefers-reduced-motion` no se suscribe al scroll**, y además no descarga
+  los 63 fotogramas restantes: son casi un mega para una imagen que se queda
+  quieta.
+- **El canvas se revela cuando hay algo dibujado**, no cuando se monta: un
+  canvas vacío pinta NEGRO.
+- **La tarjeta sale al 60% del recorrido**, no desde el primer píxel: si se
+  fuera de una, se llevaría el botón "Ordenar" justo mientras el visitante
+  todavía está mirando pasar las botellas.
+- **La vuelta de la tarjeta es `rotate`, no `rotateY`.** Un giro en el eje Y
+  pasa por el dorso: entre los 90° y los 270° se vería el logo espejado, o con
   `backface-visibility: hidden` la tarjeta desaparecería a mitad del giro.
   Girando en el plano no hay dorso — rueda como una moneda.
 - **Tres animaciones, tres elementos anidados.** `transform` es UNA propiedad:
-  dos reglas sobre el mismo elemento no se suman, la segunda pisa a la primera
-  y una se pierde en silencio.
-- **El video es la única isla de cliente del hero**, y existe solo por
-  `prefers-reduced-motion`: no hay forma de apagar el autoplay desde CSS —
-  esconder el elemento no lo pausa, solo lo hace invisible mientras sigue
-  corriendo y gastando batería.
-- **`prefers-reduced-motion` detiene todo**, y las de bucle infinito se ponen en
-  `animation: none` — si no, la regla general las hace correr un ciclo entero en
-  0,01 ms y la banda salta de golpe.
+  dos reglas sobre el mismo elemento no se suman, la segunda pisa a la primera.
+- **`svh` y no `vh`.** En móvil `vh` se mide contra el viewport con la barra del
+  navegador retraída, y el recorrido del scrub se descuadra.
 
 ## Legal
 

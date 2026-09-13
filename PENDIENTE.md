@@ -130,10 +130,12 @@ se pueda discutir en vez de creerle a ciegas.
       `docs/prompt-video-hero.md`: las tres botellas pasando una por una y
       cerrando con las tres juntas. 8 s, sin audio, **267 KB**.
 
-- [ ] **La versión 16:9 del video.** El que hay es **9:16 (vertical)**, que es
-      perfecto en teléfono pero en escritorio `object-cover` lo recorta a la
-      franja central: se ve como un tercio de la altura del video. Es el mismo
-      prompt cambiando una línea — está en `docs/prompt-video-hero.md` §4.
+- [ ] **La versión 16:9 del video — esto sí hace falta.** El que hay es **9:16
+      (vertical)**: perfecto en teléfono, pero en escritorio el recorte a
+      `cover` deja ver como un tercio de la altura, o sea el cuerpo de la
+      botella ampliado y no la composición. Es el mismo prompt cambiando una
+      línea — `docs/prompt-video-hero.md` §4. Al llegar, se deja en
+      `research/assets/hero.mp4` y se corre `scripts/optimizar-fotos.py`.
 
 - [ ] **Logo vectorial del cliente.** El de
       `src/shared/components/ui/Logo.tsx` es una **interpretación** dibujada a
@@ -162,13 +164,16 @@ se pueda discutir en vez de creerle a ciegas.
 
 ## 6. Construido a medias a propósito
 
-- [ ] **Medir Lighthouse con el video puesto.** El hero ahora lleva video, que
-      es lo más caro que se puede poner sobre el pliegue. Está montado para que
-      NO sea el LCP —sin `poster`, con el degradado debajo pintándose desde el
-      HTML— pero eso es un razonamiento, y un razonamiento no es una medición.
-      **Auditar sobre el build de producción antes de publicar.** Si el
-      rendimiento cae por debajo de 95, la salida es mover el video a una banda
-      bajo el hero con `next/dynamic`.
+- [ ] **Medir Lighthouse con la secuencia puesta.** El hero lleva 64 fotogramas
+      = **872 KB** sobre el pliegue. Está montado para que NO sea el LCP —un
+      `<canvas>` no es candidato, y detrás hay un degradado que se pinta desde
+      el HTML— pero eso es un razonamiento, y un razonamiento no es una
+      medición. **Auditar sobre el build de producción antes de publicar.**
+
+      Si el rendimiento cae por debajo de 95, en orden de menor a mayor
+      sacrificio: bajar a 48 fotogramas (−244 KB, el scrub va a saltos),
+      reducir el ancho a 480 px, o sacar la secuencia del hero y dejarla en una
+      sección más abajo.
 
 ---
 
