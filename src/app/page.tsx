@@ -1,5 +1,6 @@
 import { productos, idsDeProductos } from "@/shared/data/productos";
 import { kits, verificarKits } from "@/features/kits/lib/kits";
+import { servicio } from "@/features/eventos/lib/servicio";
 import { Hero } from "@/features/hero/components/Hero";
 import { Catalogo } from "@/features/catalogo/components/Catalogo";
 import { Kits } from "@/features/kits/components/Kits";
@@ -47,7 +48,7 @@ export default function Inicio() {
       <Kits kits={kits} productosDeKit={productosDeKit} />
       <Ritual />
       <Historia />
-      <Eventos />
+      <Eventos servicio={servicio} />
       <Resenas />
       <Entrega />
       <Faq />

@@ -1,6 +1,5 @@
-import { z } from "zod";
 import { Tarjeta } from "@/shared/components/ui/Tarjeta";
-import crudo from "../data/servicio.json";
+import type { Servicio } from "../lib/servicio";
 
 /**
  * Lo que de verdad se ofrece en un evento.
@@ -16,18 +15,13 @@ import crudo from "../data/servicio.json";
  * dice "ponemos la barra y ademas el licor te sale mas barato", que no compite
  * con nadie.
  *
- * Va ARRIBA del cotizador a proposito: el cotizador habla solo de los litros
- * de la casa, y sin este bloque delante alguien podria leer que el servicio se
- * acaba ahi.
+ * RECIBE LOS DATOS YA VALIDADOS, no los parsea. El esquema de Zod vive en
+ * `../lib/servicio.ts` y lo ejecuta `app/page.tsx`, que es de servidor: este
+ * componente lo importa `Eventos.tsx`, que lleva "use client", y todo lo que
+ * importa un componente de cliente se vuelve codigo de cliente. Teniendo el
+ * parseo aqui, Zod entero bajaba al navegador para validar tres parrafos.
  */
-const ServicioSchema = z.object({
-  titulo: z.string().min(1),
-  texto: z.string().min(1),
-});
-
-const servicio = z.array(ServicioSchema).min(1).parse(crudo);
-
-export function ServicioBarra() {
+export function ServicioBarra({ servicio }: { servicio: Servicio[] }) {
   return (
     <div className="mb-14 grid gap-6 lg:grid-cols-3">
       {servicio.map(({ titulo, texto }) => (

@@ -316,6 +316,38 @@ lavada. **Lo que lo arregla no es el orden sino la ALTURA**: las olas llegan a
 abajo** y la etiqueta queda siempre sobre la línea de flotación. Si se suben las
 olas o se baja la banda, vuelve el lavado.
 
+## Zod nunca debe ser alcanzable desde un componente de cliente
+
+Salvo que valide un **formulario**, que es el único caso donde hace falta en el
+navegador (`features/checkout/schema.ts`).
+
+**Todo lo que importa un componente de cliente se vuelve código de cliente, en
+cascada.** `ServicioBarra.tsx` no lleva `"use client"`, pero lo importaba
+`Eventos.tsx`, que sí: Zod entero viajaba al navegador para validar tres
+párrafos que nunca cambian. No lo delataba nada — ni el build, ni el lint, ni
+los tipos. Se vio midiendo los chunks servidos.
+
+El parseo se movió a `features/eventos/lib/servicio.ts`, que ejecuta
+`app/page.tsx` —de servidor— y los datos bajan por props ya validados.
+
+**El checkout se carga aparte con `next/dynamic`**, y se monta solo cuando está
+abierto: `dynamic` descarga el chunk en cuanto el componente se **renderiza**,
+así que dejarlo siempre en el árbol con `abierto={false}` no habría servido de
+nada. La descarga se adelanta al abrir el carrito —el paso anterior— para que
+al pulsar "Continuar el pedido" ya esté en memoria.
+
+Medido sobre el build de producción:
+
+| | |
+|---|---|
+| Entrada, antes | 279 KB comprimidos |
+| Entrada, ahora | **187 KB** |
+| Checkout, diferido | 92 KB, solo para quien compra |
+
+> **Ojo al medir:** un `next dev` corriendo escribe en el MISMO `.next` que el
+> build de producción. Con los dos a la vez, los chunks en disco no son los que
+> sirve producción y las mediciones salen mal. Parar el dev antes de medir.
+
 ## Comandos
 
 ```bash

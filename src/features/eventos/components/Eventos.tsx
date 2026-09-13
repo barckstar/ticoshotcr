@@ -8,6 +8,7 @@ import { IconoWhatsApp } from "@/shared/components/ui/Iconos";
 import { enviarPorWhatsApp } from "@/shared/lib/whatsapp";
 import { etiquetaIntensidad, MAX_PERSONAS, type Intensidad } from "../lib/evento";
 import { construirMensajeEvento } from "../lib/mensajeEvento";
+import type { Servicio } from "../lib/servicio";
 import { ServicioBarra } from "./ServicioBarra";
 
 /**
@@ -32,7 +33,15 @@ const tipos = [
   "Otro",
 ] as const;
 
-export function Eventos() {
+/**
+ * `servicio` llega YA VALIDADO desde `app/page.tsx`, que es de servidor.
+ *
+ * Este componente lleva "use client", y todo lo que importa se vuelve codigo
+ * de cliente en cascada. Parseando aqui —o dentro de ServicioBarra— Zod entero
+ * bajaba al navegador para validar tres parrafos que nunca cambian: 91 KB
+ * comprimidos en la carga inicial que no delataba ni el build ni el lint.
+ */
+export function Eventos({ servicio }: { servicio: Servicio[] }) {
   const [personas, setPersonas] = useState("");
   const [intensidad, setIntensidad] = useState<Intensidad>("normal");
   const [tipo, setTipo] = useState<string>(tipos[0]);
@@ -113,7 +122,7 @@ export function Eventos() {
       antetitulo="Eventos y catering"
       titulo="Ponemos la barra de tu fiesta"
     >
-      <ServicioBarra />
+      <ServicioBarra servicio={servicio} />
 
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
         <div>
