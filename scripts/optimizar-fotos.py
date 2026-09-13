@@ -26,7 +26,7 @@ QUE PRODUCE, Y POR QUE CADA UNO
 
   marca/icon-*.png           Favicon en 32, 192 y 512, y el de Apple en 180.
   marca/og.jpg               1200x630 para las vistas previas de WhatsApp y
-                             Facebook, compuesto desde la foto de los tres.
+                             Facebook. SOLO el logo, rojo sobre blanco.
 
   video/hero-poster.webp     La portada del video de la seccion de eventos.
                              Ver `poster()`.
@@ -131,23 +131,55 @@ def main() -> None:
             print(f"  {(MARCA / archivo).relative_to(RAIZ)}  {lado}x{lado}  {kb(MARCA / archivo)}")
 
     print("\nOpen Graph:")
-    with Image.open(ORIGEN / "los-tres.jpg") as tres:
-        tres = tres.convert("RGB")
+    """
+    La imagen de las vistas previas: SOLO EL LOGO, rojo sobre blanco.
+
+    Se probo componiendolo sobre la foto de las tres botellas y no funciona,
+    por dos razones que solo se ven mirando el resultado:
+
+      1. El centro de esa foto es la etiqueta del Miguelito, que TAMBIEN es un
+         circulo blanco con el logo dentro. Quedaban dos logos apilados.
+      2. Aun resolviendolo con una placa detras, al tamaño real de un chat
+         —unos 250 px de ancho— la foto y el logo compiten y no gana ninguno.
+
+    Un logo solo, grande y centrado, se lee a cualquier tamaño y sobrevive a
+    cualquier recorte. Y eso ultimo importa: WhatsApp, Facebook y X no muestran
+    el 1200x630 entero, cada uno lo RECORTA a su proporcion, y en un chat de
+    WhatsApp el recorte se acerca al cuadrado.
+    """
+    with Image.open(ORIGEN / "logo.jpg") as marca:
+        gris = marca.convert("L")
         """
-        1200x630 es lo que piden Facebook y WhatsApp. La foto es 4:5, o sea
-        mucho mas alta que ancha: se recorta una FRANJA HORIZONTAL centrada en
-        las etiquetas en vez de encajar la foto entera, porque encajada deja
-        dos bandas vacias a los lados y las botellas salen diminutas.
+        El logo viene ROJO SOBRE BLANCO en un JPEG, o sea sin transparencia. La
+        mascara se saca del propio dibujo: lo que NO es blanco es tinta.
+
+        `point` mapea cada nivel de gris a opacidad —255 donde el pixel es
+        oscuro, 0 donde es blanco— con una rampa entre 110 y 200 en vez de un
+        corte seco. El corte seco deja los bordes dentados; la rampa conserva
+        el suavizado del original.
+
+        Se repinta con el ROJO del reparto 70/30/10 en vez de conservar el del
+        JPEG: asi el color es exacto y no el que haya sobrevivido a la
+        compresion de Instagram.
         """
-        ancho, alto = tres.size
-        alto_franja = round(ancho * 630 / 1200)
-        # Centrada un poco por debajo de la mitad: ahi estan las etiquetas.
-        centro = round(alto * 0.56)
-        arriba = max(0, min(centro - alto_franja // 2, alto - alto_franja))
-        franja = tres.crop((0, arriba, ancho, arriba + alto_franja))
-        franja = franja.resize((1200, 630), Image.LANCZOS)
+        mascara = gris.point(
+            lambda v: 255 if v < 110 else (0 if v > 200 else int((200 - v) * 255 / 90))
+        )
+
+        """
+        El logo ocupa el 74% del ALTO, no del ancho. El lienzo es 1200x630 y el
+        logo es cuadrado: midiendolo contra el ancho se saldria por arriba y
+        por abajo.
+        """
+        lado = round(630 * 0.74)
+        mascara = mascara.resize((lado, lado), Image.LANCZOS)
+
+        lienzo = Image.new("RGB", (1200, 630), (255, 255, 255))
+        tinta = Image.new("RGB", mascara.size, (211, 32, 39))
+        lienzo.paste(tinta, ((1200 - lado) // 2, (630 - lado) // 2), mascara)
+
         MARCA.mkdir(parents=True, exist_ok=True)
-        franja.save(MARCA / "og.jpg", "JPEG", quality=86, optimize=True, progressive=True)
+        lienzo.save(MARCA / "og.jpg", "JPEG", quality=90, optimize=True, progressive=True)
         print(f"  {(MARCA / 'og.jpg').relative_to(RAIZ)}  1200x630  {kb(MARCA / 'og.jpg')}")
 
 

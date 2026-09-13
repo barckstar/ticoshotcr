@@ -391,6 +391,14 @@ Ahora vive en un solo sitio, `shared/config/sitio.ts`, y resuelve en orden:
 - **`Product` lleva `image`, y en las dos proporciones.** Es obligatoria para
   que salga como resultado enriquecido: sin ella el producto se indexa pero
   nunca aparece con foto, que es lo que hace que alguien haga clic.
+- **La imagen de compartir es SOLO EL LOGO, rojo sobre blanco.** Se probó
+  componiéndolo sobre la foto de las tres botellas y no funciona: el centro de
+  esa foto es la etiqueta del Miguelito, que también es un círculo blanco con el
+  logo dentro — quedaban dos logos apilados. Y aun resolviéndolo con una placa,
+  al tamaño real de un chat (~250 px) la foto y el logo compiten y no gana
+  ninguno. Va **centrado** porque cada plataforma recorta el 1200×630 a su
+  proporción, y en WhatsApp el recorte se acerca al cuadrado: una esquina es lo
+  primero que se pierde.
 - **`formatDetection.telephone: false`.** Sin eso, Safari en iOS subraya como
   enlace de llamada cualquier número del texto —el del pie, las cantidades de
   las preguntas— y el sitio parece lleno de enlaces rotos.
