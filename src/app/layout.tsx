@@ -57,6 +57,11 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   /*
     La imagen de compartir: 1200x630, que es lo que piden Facebook y WhatsApp.
+
+    EL NOMBRE DEL ARCHIVO ES PARTE DEL CONTRATO. WhatsApp y Facebook cachean la
+    imagen POR URL y no vuelven a pedirla: se cambio el diseño de `og.jpg` y las
+    vistas previas siguieron mostrando la vieja durante horas. Al cambiar esta
+    imagen hay que cambiarle el nombre — de ahi el sufijo.
     La compone `scripts/optimizar-fotos.py` recortando una franja horizontal de
     la foto de los tres, centrada en las etiquetas — encajar la foto 4:5 entera
     deja dos bandas vacias a los lados y las botellas salen diminutas.
@@ -73,7 +78,7 @@ export const metadata: Metadata = {
     url: "/",
     images: [
       {
-        url: "/marca/og.jpg",
+        url: "/marca/og-logo.jpg",
         width: 1200,
         height: 630,
         alt: `Chiliguaro, Miguelito y Sangría de ${negocio.nombre}`,
@@ -85,7 +90,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${negocio.nombre} | 100% artesanal`,
     description: `Chiliguaro, Miguelito y Sangría en litro. Pedí por WhatsApp.`,
-    images: ["/marca/og.jpg"],
+    images: ["/marca/og-logo.jpg"],
   },
   applicationName: negocio.nombre,
 

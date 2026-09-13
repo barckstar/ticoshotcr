@@ -57,7 +57,7 @@ export function jsonLdNegocio(): WithContext<Organization> {
       que no tienen el contexto de la pagina.
     */
     logo: `${SITIO_URL}/marca/icon-512.png`,
-    image: `${SITIO_URL}/marca/og.jpg`,
+    image: `${SITIO_URL}/marca/og-logo.jpg`,
 
     /*
       El canal real de atencion. `contactType` con un valor del vocabulario de

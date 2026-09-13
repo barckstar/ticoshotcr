@@ -25,8 +25,14 @@ QUE PRODUCE, Y POR QUE CADA UNO
                              del carrito y las tarjetas de kits.
 
   marca/icon-*.png           Favicon en 32, 192 y 512, y el de Apple en 180.
-  marca/og.jpg               1200x630 para las vistas previas de WhatsApp y
+  marca/og-logo.jpg          1200x630 para las vistas previas de WhatsApp y
                              Facebook. SOLO el logo, rojo sobre blanco.
+
+                             EL NOMBRE LLEVA QUE ES: al cambiar el diseño de
+                             esta imagen hay que cambiarle el NOMBRE tambien.
+                             WhatsApp y Facebook cachean por URL y no vuelven
+                             a pedirla nunca; con el mismo nombre, la vista
+                             previa se queda con la vieja para siempre.
 
   video/hero-poster.webp     La portada del video de la seccion de eventos.
                              Ver `poster()`.
@@ -179,8 +185,8 @@ def main() -> None:
         lienzo.paste(tinta, ((1200 - lado) // 2, (630 - lado) // 2), mascara)
 
         MARCA.mkdir(parents=True, exist_ok=True)
-        lienzo.save(MARCA / "og.jpg", "JPEG", quality=90, optimize=True, progressive=True)
-        print(f"  {(MARCA / 'og.jpg').relative_to(RAIZ)}  1200x630  {kb(MARCA / 'og.jpg')}")
+        lienzo.save(MARCA / "og-logo.jpg", "JPEG", quality=90, optimize=True, progressive=True)
+        print(f"  {(MARCA / 'og-logo.jpg').relative_to(RAIZ)}  1200x630  {kb(MARCA / 'og-logo.jpg')}")
 
 
 def poster() -> None:
