@@ -187,25 +187,6 @@ body {
   animation-play-state: paused;
 }
 
-/* ============================================================
-   La secuencia de fotogramas del hero.
-
-   Entra con una transicion de opacidad cuando hay ALGO
-   dibujado, no cuando el canvas se monta: un <canvas> vacio
-   pinta NEGRO, y medio segundo de rectangulo negro tapando el
-   degradado coral es peor que no tener secuencia.
-
-   Lo pone SecuenciaHero.tsx al primer `drawImage`.
-   ============================================================ */
-.secuencia-hero {
-  opacity: 0;
-  transition: opacity 0.6s ease-out;
-}
-
-.secuencia-hero[data-listo="true"] {
-  opacity: 1;
-}
-
 /* Flotacion de la tarjeta del hero. Amplitud chica: mas se lee como error. */
 @keyframes flotar {
   0%,
@@ -268,27 +249,13 @@ body {
    "no se mueve nada": una pagina quieta se lee como rota.
    ============================================================ */
 @supports (animation-timeline: scroll()) {
-  /*
-    LA TARJETA DA UNA VUELTA ENTERA MIENTRAS VIAJA A LA DERECHA.
-
-    `rotate` en el plano y no `rotateY`: una vuelta en el eje Y pasa por el
-    dorso de la tarjeta, o sea que entre los 90 y los 270 grados se ve el
-    contenido ESPEJADO —el logo al reves y "TOHSOCIT"— o, con
-    `backface-visibility: hidden`, la tarjeta desaparece a la mitad del giro.
-    Girando en el plano nunca hay dorso: la tarjeta rueda de lado, como una
-    moneda sobre la mesa.
-
-    La perspectiva del padre no es decoracion: hace que el encogido se lea como
-    alejarse y no como achicarse.
-  */
+  /* La tarjeta se corre y se desvanece mientras se baja. */
   @keyframes card-al-bajar {
     to {
-      transform: translate3d(38vw, -8vh, 0) rotate(360deg) scale(0.68);
+      transform: translate3d(14vw, -4vh, 0) scale(0.92);
       opacity: 0;
     }
   }
-
-
 
   /* Las olas se separan: la de adelante corre mas que la de atras. */
   @keyframes ola-al-bajar {
@@ -300,19 +267,9 @@ body {
   .card-scroll {
     animation: card-al-bajar linear both;
     animation-timeline: scroll(root);
-    /* Termina antes del final del hero: no debe seguir girando a mitad de la
+    /* Termina antes del final del hero: no debe desaparecer a mitad de la
        seccion siguiente, donde ya nadie la esta mirando. */
-    /*
-      EMPIEZA AL 60% DEL RECORRIDO, no en cuanto se toca el scroll.
-
-      El hero esta fijado a lo largo de 200svh y el scrub ocupa los primeros
-      100svh de recorrido. Si la tarjeta se fuera desde el primer pixel, se
-      llevaria el boton "Ordenar" justo mientras el visitante todavia esta
-      mirando pasar las botellas. Sale en el ultimo tramo, cuando el recorrido
-      ya conto lo que tenia que contar.
-    */
-    animation-range: 120svh 195svh;
-    will-change: transform, opacity;
+    animation-range: 0 75svh;
   }
 
   .ola-scroll {
@@ -531,16 +488,6 @@ html {
   .flota,
   .destella {
     animation: none !important;
-  }
-
-  /*
-    La secuencia se queda QUIETA en el primer fotograma: eso lo decide
-    SecuenciaHero.tsx, que con movimiento reducido no se suscribe al scroll.
-    Aqui solo se apaga su transicion de entrada, para que aparezca ya puesta.
-  */
-  .secuencia-hero {
-    opacity: 1 !important;
-    transition: none !important;
   }
 
   /* El contenido aparece ya colocado. No basta con acortar la duracion. */

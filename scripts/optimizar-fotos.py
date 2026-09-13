@@ -29,14 +29,11 @@ QUE PRODUCE, Y POR QUE CADA UNO
   marca/og.jpg               1200x630 para las vistas previas de WhatsApp y
                              Facebook, compuesto desde la foto de los tres.
 
-  hero/f-###.webp            Los 64 fotogramas del hero. Ver `secuencia()`.
-
 El JPEG de origen ya viene recomprimido por Instagram, asi que se guarda en
 WebP con calidad 82: por debajo se empiezan a ver bloques en los degradados
 del fondo pintado, que es justo donde mas se nota.
 """
 
-import subprocess
 import sys
 from pathlib import Path
 
@@ -157,69 +154,5 @@ def main() -> None:
         print(f"  {(MARCA / 'og.jpg').relative_to(RAIZ)}  1200x630  {kb(MARCA / 'og.jpg')}")
 
 
-def secuencia() -> None:
-    """
-    Trocea el video del hero en la secuencia de fotogramas que dibuja el canvas.
-
-    POR QUE FOTOGRAMAS SUELTOS Y NO EL VIDEO. La tecnica se llama
-    *scroll-driven image sequence* y es la que usa Apple en las paginas de los
-    AirPods. Scrubear un <video> moviendole `currentTime` le pide al
-    decodificador que busque un fotograma arbitrario en tiempo real: va a
-    tirones y en Safari de iPhone es donde peor se porta. Dibujar una imagen ya
-    descargada es instantaneo. Ver `SecuenciaHero.tsx`.
-
-    LOS NUMEROS SALEN DE MEDIR, no de elegir bonito. Se probaron cinco
-    combinaciones sobre este video de 8 segundos (tamanos en disco, que
-    redondean por bloque; el elegido pesa 872 KB de bytes reales):
-
-        fps  ancho  calidad   en disco
-          8    640       72    1372 KB
-          8    640       55    1128 KB
-          8    540       60    1004 KB   <- el elegido (872 KB reales)
-          6    540       60     760 KB   (48 fotogramas: el scrub va a saltos)
-          8    480       62     904 KB
-
-    8 fotogramas por segundo son 64 en total, que es donde el recorrido deja de
-    notarse escalonado. Bajar a 6 ahorra 244 KB y se ve a saltos — el fondo es
-    pintado y suave, asi que lo que se nota no es la nitidez sino el salto.
-    """
-    origen = ORIGEN / "hero.mp4"
-    if not origen.exists():
-        print("\n(sin research/assets/hero.mp4: se salta la secuencia)")
-        return
-
-    destino = RAIZ / "public" / "hero"
-    destino.mkdir(parents=True, exist_ok=True)
-    for viejo in destino.glob("*.webp"):
-        viejo.unlink()
-
-    print("\nSecuencia del hero:")
-    orden = [
-        "ffmpeg", "-y", "-v", "error", "-i", str(origen),
-        "-vf", "fps=8,scale=540:-2",
-        "-c:v", "libwebp", "-quality", "60", "-compression_level", "6",
-        str(destino / "f-%03d.webp"),
-    ]
-    if subprocess.run(orden).returncode != 0:
-        sys.exit("ffmpeg falló al extraer los fotogramas")
-
-    cuadros = sorted(destino.glob("*.webp"))
-    total = sum(f.stat().st_size for f in cuadros)
-    print(f"  {destino.relative_to(RAIZ)}/f-###.webp  "
-          f"{len(cuadros)} fotogramas  {total / 1024:.0f} KB")
-
-    """
-    El conteo va ESCRITO en el componente (`TOTAL = 64`). Si un dia se cambian
-    los fps aqui y alla no, el canvas pide fotogramas que no existen o deja
-    fuera los ultimos, y no lo caza nada. Que reviente el script.
-    """
-    if len(cuadros) != 64:
-        sys.exit(
-            f"Salieron {len(cuadros)} fotogramas y SecuenciaHero.tsx espera 64. "
-            "Actualizá TOTAL ahí o los fps de aquí."
-        )
-
-
 if __name__ == "__main__":
     main()
-    secuencia()

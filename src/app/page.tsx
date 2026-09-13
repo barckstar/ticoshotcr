@@ -47,7 +47,7 @@ const nombres: Record<string, string> = Object.fromEntries(
 export default function Inicio() {
   return (
     <main>
-      <Hero />
+      <Hero productos={productos} />
       <Catalogo productos={productos} />
       <Kits kits={kits} productosDeKit={productosDeKit} />
       <Ritual />
