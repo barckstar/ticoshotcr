@@ -13,6 +13,12 @@
  *
  * VAN EN LINEA, no como <img src="ola.svg">. Estan sobre el pliegue y un <img>
  * seria otra peticion de red compitiendo con el LCP.
+ *
+ * LAS ALTURAS ESTAN MEDIDAS CONTRA LA BANDA DE FOTOS, que se pinta debajo de
+ * ellas. La capa mas alta llega a 184px en escritorio y las tarjetas empiezan a
+ * 96px: el agua les cubre el cuarto de abajo y las botellas se leen saliendo
+ * del agua. Subirlas mas se traga la etiqueta, y las dos capas translucidas
+ * dejan la foto lavada — eso ya paso una vez.
  */
 
 /**
@@ -42,23 +48,23 @@ const capas: Capa[] = [
     opacidad: 0.55,
     duracion: 41,
     parallax: 0.4,
-    alto: "h-32 sm:h-44",
-    abajo: "bottom-14 sm:bottom-20",
+    alto: "h-24 sm:h-32",
+    abajo: "bottom-10 sm:bottom-14",
   },
   {
     color: "var(--color-coral-alt)",
     opacidad: 0.7,
     duracion: 27,
     parallax: 0.7,
-    alto: "h-28 sm:h-40",
-    abajo: "bottom-6 sm:bottom-9",
+    alto: "h-20 sm:h-28",
+    abajo: "bottom-4 sm:bottom-6",
   },
   {
     color: "var(--color-crema)",
     opacidad: 1,
     duracion: 17,
     parallax: 1,
-    alto: "h-24 sm:h-32",
+    alto: "h-16 sm:h-24",
     abajo: "bottom-0",
   },
 ];

@@ -308,9 +308,13 @@ saltado en cada vuelta.
 Son 18 tarjetas en el DOM pero **3 imágenes distintas**: el costo es marcado, no
 red.
 
-**Las olas se pintan ANTES que la banda de fotos.** El orden en el JSX es el
-orden de pintado: al revés, las dos capas de ola translúcidas (55% y 70%)
-quedaban encima y las botellas salían lavadas, como tras un vidrio esmerilado.
+**Las olas se pintan DESPUÉS que la banda**, o sea por delante: las botellas se
+leen saliendo del agua. Estuvo al revés un tiempo porque las dos capas de atrás
+son translúcidas (55% y 70%) y cubriendo la tarjeta entera dejaban la foto
+lavada. **Lo que lo arregla no es el orden sino la ALTURA**: las olas llegan a
+184 px y las tarjetas empiezan a 96 px, así que el agua les toca el **35% de
+abajo** y la etiqueta queda siempre sobre la línea de flotación. Si se suben las
+olas o se baja la banda, vuelve el lavado.
 
 ## Comandos
 

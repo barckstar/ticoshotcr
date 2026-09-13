@@ -70,15 +70,15 @@ export function BandaBotellas({ productos }: { productos: Producto[] }) {
           className={`shrink-0 ${INCLINACION[i % INCLINACION.length]}`}
         >
           {p.imagen ? (
-            <div className="relative h-44 w-35 overflow-hidden rounded-2xl border-4 border-white/80 shadow-[0_14px_36px_rgba(150,60,30,0.3)] sm:h-60 sm:w-48">
+            <div className="relative h-48 w-38 overflow-hidden rounded-2xl border-4 border-white/80 shadow-[0_14px_36px_rgba(150,60,30,0.3)] sm:h-64 sm:w-52">
               <Image
                 src={p.imagen.vertical.src}
                 alt=""
                 fill
-                /* La tarjeta mide 140px en movil y 192px desde `sm`. Sin
+                /* La tarjeta mide 152px en movil y 208px desde `sm`. Sin
                    `sizes`, next/image serviria la de 1080 de ancho — sobre el
                    pliegue y dieciocho veces. */
-                sizes="(max-width: 640px) 140px, 192px"
+                sizes="(max-width: 640px) 152px, 208px"
                 className="object-cover"
               />
             </div>
@@ -86,7 +86,7 @@ export function BandaBotellas({ productos }: { productos: Producto[] }) {
             <Botella
               color={p.color}
               nombre={p.nombre}
-              className="h-44 w-auto drop-shadow-xl sm:h-60"
+              className="h-48 w-auto drop-shadow-xl sm:h-64"
             />
           )}
         </li>
@@ -95,7 +95,7 @@ export function BandaBotellas({ productos }: { productos: Producto[] }) {
   );
 
   return (
-    <div className="marquee pointer-events-none absolute inset-x-0 bottom-6 overflow-hidden sm:bottom-10">
+    <div className="marquee pointer-events-none absolute inset-x-0 bottom-20 overflow-hidden sm:bottom-24">
       <div
         className="marquee-pista flex"
         style={

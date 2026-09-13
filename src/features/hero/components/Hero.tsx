@@ -41,7 +41,7 @@ export function Hero({ productos }: { productos: Producto[] }) {
         barra del navegador retraida, asi que al cargar la pagina el hero nace
         mas alto que la pantalla y el asomo desaparece justo donde importa.
       */
-      className="relative isolate flex min-h-[82svh] flex-col items-center justify-center overflow-hidden pt-20 pb-48 sm:pb-56"
+      className="relative isolate flex min-h-[88svh] flex-col items-center justify-center overflow-hidden pt-24 pb-72 sm:pb-96"
     >
       {/*
         EL LCP. Un degradado en capas, sin una sola peticion de red: el
@@ -114,9 +114,21 @@ export function Hero({ productos }: { productos: Producto[] }) {
         fotos encima, las botellas se leen y la ola de adelante sigue cerrando
         la seccion por debajo de ellas.
       */}
-      <Olas />
+      {/*
+        LA BANDA VA ANTES QUE LAS OLAS, y el orden aqui es el orden de pintado:
+        lo que va despues queda encima. Asi el agua pasa POR DELANTE de las
+        tarjetas y las botellas se leen saliendo de ella.
 
+        Estuvo al reves un tiempo, y por una razon: las dos capas de ola de
+        atras son translucidas (55% y 70%), asi que cubriendo la tarjeta ENTERA
+        dejaban la foto lavada, como tras un vidrio esmerilado. Lo que lo
+        arregla no es el orden sino la ALTURA: las olas llegan a 184px y las
+        tarjetas empiezan a 96px, o sea que el agua les toca el cuarto de abajo
+        y la etiqueta queda siempre por encima de la linea de flotacion.
+      */}
       <BandaBotellas productos={productos} />
+
+      <Olas />
     </section>
   );
 }
