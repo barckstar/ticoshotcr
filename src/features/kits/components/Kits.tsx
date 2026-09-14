@@ -32,6 +32,7 @@ export function Kits({
       id="kits"
       antetitulo="Combos"
       titulo="Armá tu hielera"
+      decorado="kits"
       centrado
       className="bg-superficie-alt"
     >

@@ -26,7 +26,6 @@ export function CarritoDrawer({ onIrAlCheckout }: { onIrAlCheckout: () => void }
     cerrar,
     cambiarCantidad,
     quitar,
-    ponerNota,
     total,
     faltanPrecios,
     vaciar,
@@ -218,15 +217,6 @@ export function CarritoDrawer({ onIrAlCheckout }: { onIrAlCheckout: () => void }
                         </p>
                       </div>
 
-                      <input
-                        type="text"
-                        value={l.nota ?? ""}
-                        onChange={(e) => ponerNota(l.producto.id, e.target.value)}
-                        placeholder="Indicación: bien frío, sin mucho picante…"
-                        maxLength={80}
-                        aria-label={`Nota para ${l.producto.nombre}`}
-                        className="mt-2 w-full rounded-lg border border-borde bg-superficie px-3 py-1.5 text-xs text-texto placeholder:text-texto-suave/60 focus:border-acento focus:outline-none"
-                      />
                     </div>
                   </div>
                 </li>

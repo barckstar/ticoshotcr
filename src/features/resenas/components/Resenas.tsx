@@ -66,6 +66,7 @@ export function Resenas() {
       id="resenas"
       antetitulo="Lo que dicen"
       titulo="Reseñas de quienes ya lo probaron"
+      decorado="resenas"
       centrado
       className="bg-superficie-alt"
     >

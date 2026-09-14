@@ -27,6 +27,7 @@ export function Entrega() {
       id="entrega"
       antetitulo="Entregas"
       titulo="No tenemos local. Tenemos moto."
+      decorado="entrega"
     >
       <div className="grid gap-7 lg:grid-cols-3">
         <Tarjeta className="p-7">

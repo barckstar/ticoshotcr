@@ -193,9 +193,94 @@ body {
   will-change: transform;
 }
 
-/* Al pasar el cursor la banda se detiene: deja mirar una botella. */
-.marquee:hover .marquee-pista {
+/*
+  Al pasar el cursor la banda se detiene y la botella crece: deja mirar una.
+
+  `animation-play-state` y no quitar la animacion: la pausa CONGELA donde
+  estaba. Quitandola, la tira saltaria de golpe a su posicion inicial en cuanto
+  el cursor entra, que es exactamente lo contrario de lo que se busca.
+*/
+.marquee:hover .marquee-pista,
+.marquee:focus-within .marquee-pista,
+.banda-quieta .marquee-pista {
   animation-play-state: paused;
+}
+
+/*
+  La botella crece bajo el cursor.
+
+  El zoom va en el BOTON y no en la tarjeta de dentro: la tarjeta lleva
+  `overflow-hidden` para recortar la foto a sus esquinas redondas, y escalarla
+  desde ahi recortaria tambien lo que sobresale. Desde fuera, crece entera.
+
+  `z-index` para que la que crece pase por encima de sus vecinas y no quede a
+  medias debajo de la siguiente.
+*/
+.botella-banda {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.botella-marco {
+  transition: box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+  La inclinacion vive en el <li>, puesta por Tailwind. En la v4 `rotate-2`
+  escribe la propiedad `rotate` SUELTA —no `transform`—, y por eso se puede
+  llevar a cero desde aqui sin pisar el `scale` del boton: son dos propiedades
+  distintas sobre dos elementos distintos. Con `transform` en los dos habria
+  que reescribir el angulo exacto de cada tarjeta, que el CSS no conoce.
+*/
+.botella-banda:hover,
+.botella-banda:focus-visible {
+  transform: scale(1.16);
+  /* Respaldo para navegadores sin `:has`, donde el <li> de abajo no se entera
+     de nada: sin esto la tarjeta crecida queda debajo de la siguiente. */
+  position: relative;
+  z-index: 2;
+}
+
+/*
+  LA QUE SE MIRA SE ENDEREZA Y SUBE.
+
+  Crecer sola no bastaba: entre seis tarjetas torcidas, una torcida un poco mas
+  grande sigue siendo parte de la fila. Puesta recta se sale del patron, y eso
+  es lo que de verdad la separa de las demas.
+
+  El `z-index` va en el <li> y no en el boton: es el <li> el que tiene vecinos
+  a los que pasar por encima, y sin el la tarjeta crecida queda medio metida
+  debajo de la siguiente.
+
+  ============ VA EN `no-preference` Y NO EN LA LISTA DE ABAJO ============
+  El enderezado no se puede desactivar con un `!important` en el bloque de
+  `reduce`, porque para devolver la tarjeta a su sitio habria que reescribir el
+  angulo de cada una — y el CSS no sabe cual le toco a cual: lo pone Tailwind
+  desde la posicion en la lista. Asi que la regla directamente NO EXISTE cuando
+  se pidio menos movimiento, en vez de existir y deshacerse.
+  ========================================================================
+
+  `:has` donde no exista deja la tarjeta inclinada y ya. Crece igual.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .marquee li {
+    transition: rotate 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .marquee li:has(.botella-banda:hover),
+  .marquee li:has(.botella-banda:focus-visible) {
+    rotate: 0deg;
+    position: relative;
+    z-index: 2;
+  }
+}
+
+.botella-banda:hover .botella-marco,
+.botella-banda:focus-visible .botella-marco {
+  box-shadow: 0 26px 64px rgba(150, 60, 30, 0.45);
+}
+
+.botella-banda:active {
+  transform: scale(1.06);
 }
 
 /* Flotacion de la tarjeta del hero. Amplitud chica: mas se lee como error. */
@@ -288,6 +373,121 @@ body {
     animation-timeline: scroll(root);
     animation-range: 0 100svh;
   }
+}
+
+/* ============================================================
+   LOS ADORNOS: frutas y garabatos repartidos por las secciones.
+
+   Todo mueve SOLO transform y opacity, que van en el
+   compositor. Cualquier animacion que toque ancho, alto o
+   posicion obliga a recalcular la maqueta en cada fotograma, y
+   con veinte adornos en pantalla eso se siente en un telefono.
+
+   La duracion y el retraso llegan por variable desde el
+   componente, asi que dos adornos con la misma animacion no se
+   mueven a coro. El valor por defecto de cada una es LENTO a
+   proposito: son fondo, y un fondo que late rapido compite con
+   lo que se esta leyendo.
+   ============================================================ */
+.deco {
+  display: block;
+  will-change: transform;
+}
+
+/* Respira: crece y vuelve. El zoom que pidio el cliente. */
+@keyframes deco-zoom {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.14);
+  }
+}
+
+/* Gira entero, muy despacio. Para frutas redondas. */
+@keyframes deco-giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Se mece: no da la vuelta, solo bascula. Para hojas. */
+@keyframes deco-vaiven {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+/* Sube y baja. */
+@keyframes deco-flotar {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0);
+  }
+}
+
+/*
+  Cruza de izquierda a derecha y vuelve.
+
+  Va y VUELVE en vez de reaparecer por el otro lado: un adorno que
+  desaparece por un borde y reaparece por el opuesto obliga a que la capa
+  sea mas ancha que la pantalla, y aqui son elementos sueltos, no una
+  cinta. El vaiven lento se lee como deriva, que es lo que se busca.
+*/
+@keyframes deco-deriva {
+  0%,
+  100% {
+    transform: translate3d(-18px, 0, 0);
+  }
+  50% {
+    transform: translate3d(18px, 0, 0);
+  }
+}
+
+/* Parpadeo con un cuarto de vuelta. Para las estrellas. */
+@keyframes deco-destello {
+  0%,
+  100% {
+    transform: scale(0.85) rotate(0deg);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.15) rotate(20deg);
+    opacity: 1;
+  }
+}
+
+.deco-zoom {
+  animation: deco-zoom var(--deco-duracion, 7s) ease-in-out
+    var(--deco-retraso, 0s) infinite;
+}
+.deco-giro {
+  animation: deco-giro var(--deco-duracion, 34s) linear var(--deco-retraso, 0s)
+    infinite;
+}
+.deco-vaiven {
+  animation: deco-vaiven var(--deco-duracion, 9s) ease-in-out
+    var(--deco-retraso, 0s) infinite;
+}
+.deco-flotar {
+  animation: deco-flotar var(--deco-duracion, 8s) ease-in-out
+    var(--deco-retraso, 0s) infinite;
+}
+.deco-deriva {
+  animation: deco-deriva var(--deco-duracion, 16s) ease-in-out
+    var(--deco-retraso, 0s) infinite;
+}
+.deco-destello {
+  animation: deco-destello var(--deco-duracion, 4s) ease-in-out
+    var(--deco-retraso, 0s) infinite;
 }
 
 /* ============================================================
@@ -497,8 +697,33 @@ html {
   .ola,
   .marquee-pista,
   .flota,
-  .destella {
+  .destella,
+  .deco {
     animation: none !important;
+    transform: none !important;
+  }
+
+  /*
+    El zoom al pasar el cursor tambien es movimiento, y el enderezado de la
+    tarjeta igual: con la transicion recortada a 0,01ms no seria un giro suave
+    sino un tiron seco, que es peor que no moverse. Se queda como estaba.
+
+    La inercia al soltar se apaga desde JavaScript —ver `alSoltar()` en
+    BandaBotellas.tsx—, porque un bucle de `requestAnimationFrame` no lo para
+    ninguna regla de CSS.
+  */
+  .botella-banda,
+  .botella-banda:hover,
+  .botella-banda:focus-visible,
+  .botella-banda:active {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .botella-banda:hover .botella-marco,
+  .botella-banda:focus-visible .botella-marco {
+    box-shadow: 0 14px 36px rgba(150, 60, 30, 0.3);
+    transition: none !important;
   }
 
   /* El contenido aparece ya colocado. No basta con acortar la duracion. */

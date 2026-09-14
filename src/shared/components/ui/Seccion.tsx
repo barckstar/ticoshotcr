@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
 import { Contenedor } from "./Contenedor";
 import { Revelar } from "./Revelar";
+import {
+  DecoradosSeccion,
+  type VarianteDecorado,
+} from "./DecoradosSeccion";
 
 /**
  * Seccion anclada. El `id` es el destino de las anclas del navbar.
@@ -19,6 +23,7 @@ export function Seccion({
   antetitulo,
   children,
   centrado = false,
+  decorado,
   className,
 }: {
   id: string;
@@ -26,15 +31,33 @@ export function Seccion({
   antetitulo?: string;
   children: ReactNode;
   centrado?: boolean;
+  /**
+   * El juego de frutas y garabatos del fondo. Ver `DecoradosSeccion`.
+   *
+   * Es una PROP y no algo que cada seccion monte por su cuenta: asi el envoltorio
+   * se encarga tambien del `relative isolate` que los adornos necesitan, y no
+   * hay forma de poner los adornos y olvidarse de eso.
+   */
+  decorado?: VarianteDecorado;
   className?: string;
 }) {
   return (
     <section
       id={id}
-      className={["scroll-mt-24 py-20 sm:py-28", className]
+      /*
+        `relative` para que los adornos se midan contra la seccion, e `isolate`
+        para que su `-z-10` no se escape: sin aislar, la capa se va detras del
+        fondo de la pagina y los adornos no se ven en ningun lado.
+      */
+      className={[
+        "relative isolate scroll-mt-24 py-20 sm:py-28",
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     >
+      {decorado && <DecoradosSeccion variante={decorado} />}
+
       <Contenedor>
         <div className={centrado ? "flex flex-col items-center text-center" : ""}>
           {antetitulo && (

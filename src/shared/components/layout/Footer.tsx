@@ -1,6 +1,5 @@
 import { Logo } from "@/shared/components/ui/Logo";
 import { Contenedor } from "@/shared/components/ui/Contenedor";
-import { OlaDivisoria } from "@/shared/components/ui/Olas";
 import {
   IconoFacebook,
   IconoInstagram,
@@ -24,9 +23,11 @@ export function Footer() {
 
   return (
     <footer className="mt-auto">
-      {/* La ola cierra la pagina con el mismo gesto con que la abre el hero. */}
-      <OlaDivisoria color="var(--color-acento)" />
-
+      {/*
+        AQUI NO VA LA OLA. La pone `<Playa>` al final de `app/page.tsx`, junto
+        con el sol y las palmeras, y ya entra al rojo del pie. Tener las dos
+        pintaba dos olas seguidas.
+      */}
       <div className="bg-acento text-white">
         <Contenedor className="py-14">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr]">

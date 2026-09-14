@@ -34,6 +34,7 @@ export function Faq() {
       id="preguntas"
       antetitulo="Preguntas"
       titulo="Lo que siempre nos preguntan"
+      decorado="faq"
       centrado
     >
       <div className="mx-auto max-w-3xl">

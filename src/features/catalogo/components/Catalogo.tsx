@@ -74,6 +74,7 @@ export function Catalogo({ productos }: { productos: Producto[] }) {
       id="productos"
       antetitulo="El catálogo"
       titulo="Los tres que no te pueden faltar"
+      decorado="catalogo"
       centrado
     >
       <RevelarCascada className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">

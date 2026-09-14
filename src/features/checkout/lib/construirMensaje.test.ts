@@ -87,15 +87,6 @@ describe("construirMensajePedido", () => {
     expect(texto).toContain("2 litros de Chiliguaro");
   });
 
-  it("incluye la nota de una línea", () => {
-    const { texto } = construirMensajePedido(
-      [{ producto: producto("a", "Chiliguaro"), cantidad: 1, nota: "bien frío" }],
-      datosBase,
-      8000,
-    );
-    expect(texto).toContain("bien frío");
-  });
-
   it("en retiro no manda dirección ni ubicación", () => {
     const { texto } = construirMensajePedido(
       lineas,
@@ -166,9 +157,11 @@ describe("construirMensajePedido", () => {
 
   it("marca excedeLimite cuando el pedido se pasa", () => {
     const enormes: LineaCarrito[] = Array.from({ length: 40 }, (_, i) => ({
-      producto: producto(`p${i}`, `Producto con nombre larguísimo número ${i}`),
+      producto: producto(
+        `p${i}`,
+        `Producto con un nombre larguísimo de verdad, número ${i}`,
+      ),
       cantidad: 3,
-      nota: "una indicación muy detallada que ocupa su buen espacio",
     }));
     const mensaje = construirMensajePedido(enormes, datosBase, 999000);
     expect(mensaje.largoCodificado).toBeGreaterThan(LIMITE_SEGURO);

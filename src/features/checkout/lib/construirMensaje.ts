@@ -58,7 +58,6 @@ export function construirMensajePedido(
         : `  ${formatoColones(l.producto.precio * l.cantidad)}`;
 
     partes.push(`${l.cantidad} ${litros} de ${l.producto.nombre}${monto}`);
-    if (l.nota) partes.push(`   ${l.nota}`);
   }
 
   partes.push("");

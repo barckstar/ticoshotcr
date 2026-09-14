@@ -62,15 +62,6 @@ describe("carritoReducer", () => {
     expect(carritoReducer(base, { tipo: "cambiarCantidad", id: "a", cantidad: -2 })).toHaveLength(0);
   });
 
-  it("una nota en blanco se borra en vez de guardarse vacía", () => {
-    const estado = carritoReducer([{ ...linea(producto("a")), nota: "fría" }], {
-      tipo: "ponerNota",
-      id: "a",
-      nota: "   ",
-    });
-    expect(estado[0].nota).toBeUndefined();
-  });
-
   it("no muta el estado que recibe", () => {
     const base = [linea(producto("a"))];
     const copia = structuredClone(base);

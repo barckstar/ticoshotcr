@@ -10,6 +10,7 @@ import { Eventos } from "@/features/eventos/components/Eventos";
 import { Resenas } from "@/features/resenas/components/Resenas";
 import { Entrega } from "@/features/entrega/components/Entrega";
 import { Faq } from "@/features/faq/components/Faq";
+import { Playa, UnionSeccion } from "@/shared/components/ui/UnionSeccion";
 import type { Producto } from "@/shared/types/producto";
 
 /**
@@ -45,13 +46,37 @@ export default function Inicio() {
     <main>
       <Hero productos={productos} />
       <Catalogo productos={productos} />
+
+      {/*
+        LAS COSTURAS VAN SOLO DONDE CAMBIA EL COLOR DE FONDO. Entre dos
+        secciones del mismo crema no hay linea que disimular, y meter una ola
+        ahi seria decorar una union que nadie ve — mas peso y mas movimiento a
+        cambio de nada.
+
+        Son cuatro: catalogo->kits, kits->ritual, eventos->resenas y
+        resenas->entrega. Ritual, historia, eventos, entrega y preguntas
+        comparten el crema y se encadenan sin costura.
+      */}
+      <UnionSeccion de="crema" a="arena" />
       <Kits kits={kits} productosDeKit={productosDeKit} />
+      <UnionSeccion de="arena" a="crema" />
+
       <Ritual />
       <Historia />
       <Eventos servicio={servicio} />
+
+      <UnionSeccion de="crema" a="arena" />
       <Resenas />
+      <UnionSeccion de="arena" a="crema" />
+
       <Entrega />
       <Faq />
+
+      {/*
+        El cierre: sol, palmeras, arena y agua, con el agua del color del pie
+        para que la pagina entre en el rojo por una ola y no por una linea.
+      */}
+      <Playa a="acento" />
     </main>
   );
 }

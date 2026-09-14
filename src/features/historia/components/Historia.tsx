@@ -32,7 +32,8 @@ export function Historia() {
   const anos = new Date().getFullYear() - negocio.desde;
 
   return (
-    <Seccion id="nosotros" antetitulo="Quiénes somos" titulo="Hecho con amor desde el 2020">
+    <Seccion id="nosotros" antetitulo="Quiénes somos" titulo="Hecho con amor desde el 2020"
+      decorado="nosotros">
       <div className="grid gap-14 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
         <div>
           <p className="text-lg leading-relaxed text-texto">

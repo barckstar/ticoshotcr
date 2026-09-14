@@ -121,6 +121,7 @@ export function Eventos({ servicio }: { servicio: Servicio[] }) {
       id="eventos"
       antetitulo="Eventos y catering"
       titulo="Ponemos la barra de tu fiesta"
+      decorado="eventos"
     >
       <ServicioBarra servicio={servicio} />
 

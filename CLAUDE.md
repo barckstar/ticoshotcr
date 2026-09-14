@@ -316,6 +316,68 @@ lavada. **Lo que lo arregla no es el orden sino la ALTURA**: las olas llegan a
 abajo** y la etiqueta queda siempre sobre la línea de flotación. Si se suben las
 olas o se baja la banda, vuelve el lavado.
 
+### La banda se toca, y lo que no se puede probar a mano se saca a una lib
+
+Cuatro gestos: el cursor la detiene y agranda esa botella, arrastrar la mueve,
+**soltarla en marcha la deja rodando y frena sola**, y un clic agrega ese litro.
+
+Arrastrar y hacer clic son el mismo gesto hasta que dejan de serlo. Los separa
+un umbral de **6 px** —lo que tiembla un dedo apoyado sin intención de mover—:
+pasado eso fue arrastre y no se agrega nada. Un toque sobre la banda **en
+movimiento** la atrapa y tampoco compra: quien pone el dedo encima de algo que
+se mueve lo está parando.
+
+La mecánica vive en `features/hero/lib/banda.ts` y **no en el componente**,
+porque `BandaBotellas.tsx` lleva `"use client"` e importa `next/image` y no se
+puede cargar desde una prueba de Node. Ahí está lo único que falla en silencio:
+
+- **El salto entre copias.** La pista son seis juegos idénticos, así que el
+  contenido en `x` y en `x + unaCopia` es el mismo pixel: saltar una copia
+  entera al pasarse de un extremo es invisible, y deja la tira girando sin fin
+  en vez de estrellarse contra el final del scroll a mitad de un lanzamiento.
+  La condición **no** es que quepa una copia en el rango sino que el punto
+  equivalente **caiga dentro** de él — son cosas distintas, y la prueba que lo
+  asumió al revés falló.
+- **El roce elevado a `dt/16`.** Aplicado a pelo una vez por fotograma, un
+  teléfono a 30 fps frenaría en la mitad del tiempo que un portátil a 60. El
+  recorrido tiene que depender del tirón, no de lo rápido que pinte el aparato.
+- **La velocidad suavizada.** El último `pointermove` antes de levantar el dedo
+  suele venir casi quieto; a pelo mataría el impulso justo en el evento que lo
+  decide.
+
+La inercia se apaga con `prefers-reduced-motion` **desde JavaScript**: un bucle
+de `requestAnimationFrame` no lo para ninguna regla de CSS. El arrastre sí se
+respeta — lo mueve el dedo, es movimiento pedido.
+
+### `overflow-x: auto` obliga a recortar TAMBIÉN en vertical
+
+No existe `overflow-x: auto` con `overflow-y: visible`: el CSS computa el
+segundo a `auto`. Así que la tarjeta que crece bajo el cursor salía **cortada
+por arriba y por abajo**, y aun en reposo el carril se comía 5 px de las
+tarjetas inclinadas.
+
+Lo arregla **relleno dentro del carril**, no quitar el recorte: `py-16` da los
+64 px que necesitan el zoom, la inclinación y la sombra. Y el `bottom` baja
+**esos mismos 64 px** para que las botellas queden exactamente donde estaban —
+a 80 px del borde en móvil y 96 px desde `sm`, que es la altura de la que
+depende que las olas les toquen solo el cuarto de abajo. **Tocar uno obliga a
+tocar el otro.**
+
+### La tarjeta que se mira se endereza
+
+Crecer sola no bastaba: entre seis tarjetas torcidas, una torcida un poco más
+grande sigue siendo parte de la fila. Puesta recta se sale del patrón, y eso es
+lo que la separa de las demás.
+
+Se puede porque en **Tailwind v4 `rotate-2` escribe la propiedad `rotate`
+suelta**, no `transform`: convive con el `scale` del botón sin pisarlo. Con
+`transform` en los dos habría que reescribir el ángulo exacto de cada tarjeta,
+y el CSS no sabe cuál le tocó a cuál.
+
+Por lo mismo la regla vive en `@media (prefers-reduced-motion: no-preference)`
+y **no** en la lista de `reduce`: para deshacerla haría falta ese ángulo que no
+se conoce, así que directamente no existe cuando se pidió menos movimiento.
+
 ## Zod nunca debe ser alcanzable desde un componente de cliente
 
 Salvo que valide un **formulario**, que es el único caso donde hace falta en el
@@ -418,7 +480,7 @@ npm run lint
 
 ## Estado
 
-Build ✓ · 43 pruebas ✓ · lint ✓ · cero violaciones de arquitectura.
+Build ✓ · 62 pruebas ✓ · lint ✓ · cero violaciones de arquitectura.
 
 **No publicar todavía:** faltan precios, reseñas reales y datos del negocio.
 Ver `PENDIENTE.md`.

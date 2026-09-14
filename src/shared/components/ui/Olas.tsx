@@ -101,39 +101,3 @@ export function Olas({ className }: { className?: string }) {
     </div>
   );
 }
-
-/**
- * Ola quieta para separar secciones. No se anima: en medio de la pagina el
- * movimiento distrae de lo que se esta leyendo, y ademas serian cinco
- * animaciones infinitas mas corriendo a la vez.
- */
-export function OlaDivisoria({
-  color = "var(--color-crema)",
-  invertida = false,
-  className,
-}: {
-  color?: string;
-  /** true = la curva mira hacia arriba. Para cerrar una seccion. */
-  invertida?: boolean;
-  className?: string;
-}) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 1440 100"
-      preserveAspectRatio="none"
-      className={[
-        "block h-12 w-full sm:h-20",
-        invertida && "rotate-180",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <path
-        d="M0 52 c240 -58 480 46 720 14 c240 -32 480 -50 720 6 L1440 100 L0 100 Z"
-        fill={color}
-      />
-    </svg>
-  );
-}

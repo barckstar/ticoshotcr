@@ -50,13 +50,6 @@ export function carritoReducer(
     case "quitar":
       return estado.filter((l) => l.producto.id !== accion.id);
 
-    case "ponerNota":
-      return estado.map((l) =>
-        l.producto.id === accion.id
-          ? { ...l, nota: accion.nota.trim() || undefined }
-          : l,
-      );
-
     case "vaciar":
       return [];
 
@@ -121,7 +114,6 @@ type ValorCarrito = {
   agregar: (producto: Producto) => void;
   cambiarCantidad: (id: string, cantidad: number) => void;
   quitar: (id: string) => void;
-  ponerNota: (id: string, nota: string) => void;
   vaciar: () => void;
   cantidadDe: (id: string) => number;
   total: number;
@@ -185,7 +177,6 @@ export function CarritoProvider({
       cambiarCantidad: (id, cantidad) =>
         despachar({ tipo: "cambiarCantidad", id, cantidad }),
       quitar: (id) => despachar({ tipo: "quitar", id }),
-      ponerNota: (id, nota) => despachar({ tipo: "ponerNota", id, nota }),
       vaciar: () => despachar({ tipo: "vaciar" }),
       cantidadDe: (id) => lineas.find((l) => l.producto.id === id)?.cantidad ?? 0,
       total: total(lineas),

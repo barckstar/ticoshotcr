@@ -41,6 +41,7 @@ export function Ritual() {
       id="ritual"
       antetitulo="El ritual"
       titulo="Cómo se toma cada uno"
+      decorado="ritual"
       centrado
     >
       <RevelarCascada className="grid gap-7 lg:grid-cols-3">
