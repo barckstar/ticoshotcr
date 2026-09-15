@@ -22,15 +22,27 @@
  * ==============================================
  */
 
-/** Los fondos que de verdad usa el sitio. */
+import { Palmera } from "./Decorados";
+
+/**
+ * Los fondos que de verdad usa el sitio, mas los dos del mar.
+ *
+ * `mar` y `espuma` NO son tokens nuevos: son el azul de etiqueta del Miguelito
+ * y el azul de los garabatos de sus publicaciones, con otro nombre porque aqui
+ * cumplen otro papel. Se listan aparte de `ColorUnion` a proposito — una
+ * costura entre secciones nunca puede ser azul, solo la escena de la playa lo
+ * usa.
+ */
 const colores = {
   crema: "var(--color-crema)",
   arena: "var(--color-superficie-alt)",
   coral: "var(--color-coral)",
   acento: "var(--color-acento)",
+  mar: "var(--color-crayon)",
+  espuma: "var(--color-miguelito)",
 } as const;
 
-export type ColorUnion = keyof typeof colores;
+export type ColorUnion = "crema" | "arena" | "coral" | "acento";
 
 type EstiloUnion = React.CSSProperties & Record<`--${string}`, string>;
 
@@ -53,6 +65,18 @@ const ONDA_SUAVE =
  * DOS CAPAS Y NO UNA. La de atras va al 45% de opacidad y corre mas lenta: esa
  * diferencia de velocidad es lo que el ojo lee como profundidad. Con una sola
  * capa se ve una cinta plana moviendose, no agua.
+ *
+ * ============ LA DE ATRAS LLEVA LAS CRESTAS MAS ALTAS ============
+ * Estaba al reves, y por eso NO SE VEIA NINGUNA de las dos cosas de arriba: la
+ * de atras era `ONDA_SUAVE`, que sube hasta y=48, y la de adelante `ONDA`, que
+ * sube hasta y=16. Una ola mas alta delante tapa por completo a una mas baja
+ * detras — siempre, en todo momento del ciclo. Quedaban dos SVG animandose para
+ * que se viera uno.
+ *
+ * No lo delataba nada: como aqui las dos se rellenan del MISMO color, el
+ * resultado era correcto de casualidad. Se vio al pintarlas de colores
+ * distintos en la playa.
+ * ==================================================================
  */
 export function UnionSeccion({
   de,
@@ -73,24 +97,24 @@ export function UnionSeccion({
       style={{ background: colores[de] }}
     >
       <div className={invertida ? "rotate-180" : undefined}>
-        {/* Capa de atras: mas lenta, mas suave, translucida. */}
+        {/* Capa de atras: crestas ALTAS, lenta y translucida. Es la que asoma. */}
         <svg
           className="ola absolute inset-0 h-full"
           viewBox="0 0 2880 120"
           preserveAspectRatio="none"
           style={{ "--ola-duracion": "34s" } as EstiloUnion}
         >
-          <path d={ONDA_SUAVE} fill={colores[a]} fillOpacity={0.45} />
+          <path d={ONDA} fill={colores[a]} fillOpacity={0.45} />
         </svg>
 
-        {/* Capa de adelante: la que de verdad separa los dos colores. */}
+        {/* Capa de adelante: mas baja y opaca, la que separa los dos colores. */}
         <svg
           className="ola absolute inset-0 h-full"
           viewBox="0 0 2880 120"
           preserveAspectRatio="none"
           style={{ "--ola-duracion": "21s" } as EstiloUnion}
         >
-          <path d={ONDA} fill={colores[a]} />
+          <path d={ONDA_SUAVE} fill={colores[a]} />
         </svg>
       </div>
     </div>
@@ -98,28 +122,40 @@ export function UnionSeccion({
 }
 
 /**
- * El cierre de la pagina: sol, palmeras, arena y agua.
+ * El cierre de la pagina: sol, palmeras, arena y mar.
  *
  * Va una sola vez, antes del pie. Es el unico sitio donde el sitio se permite
  * una escena completa en vez de un adorno suelto: al final ya no compite con
  * nada que haya que leer, y es lo ultimo que queda en la cabeza.
  *
- * TODO CON LA PALETA DEL SITIO. Un atardecer de playa con azules de stock se
- * saldria del reparto 70/30/10 — aqui el agua es el coral del hero y la arena
- * el mismo crema de las superficies.
+ * ============ EL AGUA ES AZUL, Y SALE DE LA PALETA ============
+ * Estuvo pintada del rojo del pie, para entrar en el sin costura. No funciono:
+ * una franja roja al pie de la pagina no se lee como mar, se lee como una
+ * franja roja.
+ *
+ * Los dos colores ya estaban: `crayon` (#7CC4E8) es el azul de los garabatos de
+ * sus publicaciones y `miguelito` (#98EDD8) el menta de la botella. Agua azul
+ * con espuma menta es, ademas, exactamente como se ve el mar de aqui. Asi que
+ * el mar NO trae un color nuevo al sitio — no hizo falta inventar un token ni
+ * tocar el reparto 70/30/10.
+ *
+ * El rojo sigue estando, pero abajo del todo y en una ola baja: ahi hace lo
+ * unico que tenia que hacer, que es entregarle la pagina al pie sin una linea
+ * recta de por medio.
+ * ==============================================================
  */
 export function Playa({ a }: { a: ColorUnion }) {
   return (
     <div
       aria-hidden="true"
-      className="relative -mt-px h-40 w-full overflow-hidden sm:h-56"
+      className="relative -mt-px h-48 w-full overflow-hidden sm:h-64"
       style={{ background: colores.crema }}
     >
       {/*
         EL SOL. Baja despacio y vuelve — no se pone del todo: si desapareciera,
         la escena se quedaria vacia la mitad del ciclo.
       */}
-      <div className="deco deco-flotar absolute left-1/2 top-4 -translate-x-1/2 sm:top-6">
+      <div className="deco deco-flotar absolute left-1/2 top-3 -translate-x-1/2 sm:top-5">
         <svg viewBox="0 0 120 120" className="w-16 text-acento/70 sm:w-24">
           <circle cx="60" cy="60" r="26" fill="currentColor" />
           {/* Doce rayos. El giro lento los hace latir sin que se note el truco. */}
@@ -144,9 +180,19 @@ export function Playa({ a }: { a: ColorUnion }) {
         misma familia y es el unico que de verdad separa la arena del cielo.
 
         Quieta, sin animacion: es suelo, no agua.
+
+        ============ LAS TRES ALTURAS ESTAN ATADAS ============
+        La cresta de la arena cae al 40% de este SVG, asi que queda a 0,6 × su
+        altura del borde de abajo. Con la arena a 240px eso son 144; el mar sube
+        96; y la diferencia —48px— es la PLAYA que se ve.
+
+        Estaba a h-24 (96px): la cresta caia a 58 y el mar subia 80, o sea que
+        el agua se tragaba la arena entera y la escena era cielo, una raya y
+        rojo. Si se cambia una de las tres, hay que rehacer la resta.
+        =======================================================
       */}
       <svg
-        className="absolute inset-x-0 bottom-0 h-20 w-full sm:h-24"
+        className="absolute inset-x-0 bottom-0 h-40 w-full sm:h-60"
         viewBox="0 0 1440 100"
         preserveAspectRatio="none"
       >
@@ -157,19 +203,70 @@ export function Playa({ a }: { a: ColorUnion }) {
       </svg>
 
       {/*
-        Las palmeras van DESPUES de la arena para quedar encima, y apoyadas en
-        ella: puestas mas abajo las tapa el agua y se ven cortadas por la mitad.
+        Las palmeras van DESPUES de la arena para quedar encima, y por encima de
+        la linea del agua: mas abajo las tapa el mar y se ven cortadas por la
+        mitad. El agua sube a 56px en movil y 80 desde `sm`, asi que ninguna
+        baja de ahi.
       */}
-      <Palmera className="absolute bottom-14 left-[6%] w-16 text-menta/70 sm:bottom-20 sm:w-24" retraso={0} />
-      <Palmera className="absolute bottom-16 right-[8%] w-14 text-menta/60 sm:bottom-24 sm:w-20" retraso={1.4} />
+      <PalmeraPlaya
+        className="absolute bottom-20 left-[6%] w-20 text-menta sm:bottom-28 sm:w-28"
+        retraso={0}
+        duracion={11}
+      />
+      <PalmeraPlaya
+        className="absolute bottom-24 right-[8%] w-16 text-menta/80 sm:bottom-32 sm:w-24"
+        retraso={1.4}
+        duracion={13}
+      />
 
-      {/* Y el agua encima de la arena, que es la unica que se mueve. */}
-      <div className="absolute inset-x-0 bottom-0 h-10 overflow-hidden sm:h-14">
+      {/*
+        EL MAR. La ESPUMA va detras y con las crestas ALTAS; el agua delante y
+        mas baja. Asi el menta asoma por encima del azul como la lengua de
+        espuma que deja una ola al romper — que es lo que hace que se lea agua
+        y no dos cintas de color.
+
+        Al reves —espuma baja detras, agua alta delante— la espuma no existe:
+        queda tapada al 100% en todo momento del ciclo. Fue asi hasta que se
+        pintaron de colores distintos y se vio.
+
+        Las velocidades tambien van al reves de la intuicion: la de atras, mas
+        lenta (30s). Esa diferencia es lo que el ojo lee como profundidad.
+      */}
+      <div className="absolute inset-x-0 bottom-0 h-16 overflow-hidden sm:h-24">
         <svg
           className="ola absolute inset-0 h-full"
           viewBox="0 0 2880 120"
           preserveAspectRatio="none"
-          style={{ "--ola-duracion": "26s" } as EstiloUnion}
+          style={{ "--ola-duracion": "30s" } as EstiloUnion}
+        >
+          <path d={ONDA} fill={colores.espuma} />
+        </svg>
+        <svg
+          className="ola absolute inset-0 h-full"
+          viewBox="0 0 2880 120"
+          preserveAspectRatio="none"
+          style={{ "--ola-duracion": "21s" } as EstiloUnion}
+        >
+          <path d={ONDA_SUAVE} fill={colores.mar} />
+        </svg>
+      </div>
+
+      {/*
+        LA ENTREGA AL PIE. Baja y de crestas suaves: no es parte del mar, es la
+        linea con la que el footer rojo empieza sin un corte recto. Estaba a
+        32px y volvia a leerse como la franja roja que se vino a quitar.
+
+        Lleva `ONDA` —la de crestas altas— y no `ONDA_SUAVE`: en una banda tan
+        baja, la suave solo mueve 4px y el resultado es una regla recta, que es
+        justo lo que se venia a evitar. Con la alta oscila entre 12 y 21px sobre
+        24, y ahi si se lee ondulada.
+      */}
+      <div className="absolute inset-x-0 bottom-0 h-5 overflow-hidden sm:h-6">
+        <svg
+          className="ola absolute inset-0 h-full"
+          viewBox="0 0 2880 120"
+          preserveAspectRatio="none"
+          style={{ "--ola-duracion": "24s" } as EstiloUnion}
         >
           <path d={ONDA} fill={colores[a]} />
         </svg>
@@ -178,29 +275,34 @@ export function Playa({ a }: { a: ColorUnion }) {
   );
 }
 
-/** La palmera de la escena. Se mece, con su propio desfase. */
-function Palmera({ className, retraso }: { className: string; retraso: number }) {
+/**
+ * La palmera de la escena. Es la MISMA de los adornos de seccion, solo que
+ * meciendose: un segundo dibujo de palmera aqui seria la misma cosa en dos
+ * estilos, que es justo lo que se nota.
+ */
+function PalmeraPlaya({
+  className,
+  retraso,
+  duracion,
+}: {
+  className: string;
+  retraso: number;
+  duracion: number;
+}) {
   return (
-    <svg
-      viewBox="0 0 100 100"
+    <div
       className={`deco deco-vaiven ${className}`}
       style={
         {
           "--deco-retraso": `${retraso}s`,
-          "--deco-duracion": "11s",
+          "--deco-duracion": `${duracion}s`,
           /* El giro nace en la BASE del tronco, no en el centro del dibujo:
              una palmera que bascula por la mitad se ve despegada del suelo. */
-          transformOrigin: "50% 90%",
+          transformOrigin: "50% 92%",
         } as EstiloUnion
       }
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
     >
-      <path d="M50 92C50 64 52 40 62 18" />
-      <path d="M58 34c-9-6-20-6-27 1M58 34c10-4 20-1 25 7M55 50c-10-5-21-3-27 5M55 50c10-3 20 1 24 9" strokeWidth={4} />
-    </svg>
+      <Palmera className="w-full" />
+    </div>
   );
 }

@@ -133,8 +133,16 @@ vez de tres, en silencio.
 | 30% | Tarjetas y superficies | Blanco `#FFFFFF`, arena `#FBE7DA` |
 | 10% | CTAs, precios, badges | Rojo del logo `#D32027` |
 
-El menta del Miguelito y el vino de la Sangría son **identificador de
-producto** —filete, badge, punto—, nunca fondo de sección.
+El menta del Miguelito `#98EDD8` y el vino de la Sangría `#6E1B3E` son
+**identificador de producto** —filete, badge, punto—, nunca fondo de sección.
+
+> **El menta estuvo mal.** El token decía `#1F91AE`, un teal azulado que no es
+> el color del producto: la botella del Miguelito es menta claro. Y no era solo
+> cosmético — `Botella.tsx` pinta con ese token cuando falta la foto, así que
+> el sitio dibujaba un producto que no existe. Lo confirmó el cliente.
+>
+> A **1,30:1 sobre crema no sirve para texto en ningún tamaño.** Es relleno,
+> filete y punto de color; nunca lleva letra encima.
 
 **Contraste medido, no estimado.** La tabla completa está arriba de
 `globals.css`. Lo que importa: **blanco sobre coral da 2,32:1 y NO PASA AA**,
@@ -377,6 +385,93 @@ y el CSS no sabe cuál le tocó a cuál.
 Por lo mismo la regla vive en `@media (prefers-reduced-motion: no-preference)`
 y **no** en la lista de `reduce`: para deshacerla haría falta ese ángulo que no
 se conoce, así que directamente no existe cuando se pidió menos movimiento.
+
+### Los adornos son dibujos propios, y se redibujaron enteros
+
+Quince piezas en `shared/components/ui/Decorados.tsx` —fruta, hoja tropical,
+palmera, velero y los garabatos de sus posts— en **línea fina y continua**, del
+tipo de los iconos que pasó el cliente.
+
+La primera versión eran garabatos de crayón con trazo de 5 sobre lienzo de 100
+y no daban el nivel. El problema no era solo el grosor: **un trazo gordo se come
+el detalle, y sin detalle una naranja, una manzana y un tomate son el mismo
+círculo con un rabito.** Ahora el trazo es de 3 y cada dibujo lleva lo que lo
+hace único —los ocho gajos y el doble anillo de la corteza, el cáliz de cinco
+hojas del tomate, la muesca del tallo de la manzana, las escamas de la piña.
+
+Son **SVG propios, no un paquete descargado**: no arrastran la atribución que
+casi todas las licencias gratuitas de iconos exigen, heredan `currentColor` y
+escalan sin pixelarse.
+
+Tres reglas que salieron de mirarlos rasterizados:
+
+- **El detalle que sobrevive es la SILUETA.** El coco partido con el hueco
+  concéntrico se leía como una diana; descentrándolo, la corteza pasa de 5 a 17
+  px y se lee media cáscara. El chile salía berenjena hasta que un lado bajó
+  recto y el otro cerró en pico.
+- **Los cortes de la monstera van en el CONTORNO.** Dibujados como rayas por
+  dentro de un óvalo cerrado es un globo con una red. Y se dibuja **una mitad,
+  espejada con `scale(-1 1)`**: escrita dos veces, el día que se retoque un
+  lóbulo el otro lado se queda y la hoja sale coja.
+- **La hoja de palma es pluma, no abanico.** Seis hojas convergiendo en un punto
+  funden sus rellenos en un borrón; repartidas a lo largo de un tallo no se
+  tocan nunca.
+
+**La opacidad depende del color.** Todos iban al 22% y los claros no es que se
+vieran poco, es que no estaban: menta `#98EDD8` sobre crema da **1,30:1** a
+plena opacidad. Ahora son dos niveles — `TENUE` 0,3 para vino y rojo, `VIVO` 0,8
+para menta, crayon y amarillo. Lo que cuenta para el 70/30/10 es la **tinta**
+—color × grosor × opacidad—, nunca el número de la opacidad suelto.
+
+**Los tamaños tienen que ser muy distintos.** Estaban todos entre `w-20` y
+`w-36`: a esa distancia el ojo no lee "grande y chico", lee "todos parecidos", y
+el fondo se vuelve una cenefa. Cada sección tiene ahora una pieza de ancla
+grande (`w-44` a `w-60`), una media y una o dos chicas — hasta quince veces de
+diferencia. La grande va siempre en esquina y casi siempre en `hidden lg:block`.
+
+**El hero usa las mismas piezas.** Tenía su propia nube, su propia estrella y
+sus propias rayas duplicadas, con el color escrito dentro del SVG — que es justo
+lo que impide reusar un dibujo. Lo único que sigue siendo del hero son sus
+animaciones de scroll (`garabato`, `destella`), distintas de las `deco-*`.
+
+### En dos olas superpuestas, la de ATRÁS lleva las crestas más altas
+
+Estaba al revés: atrás `ONDA_SUAVE` (sube a y=48) y delante `ONDA` (sube a
+y=16). Una ola más alta delante **tapa por completo** a una más baja detrás, en
+todo momento del ciclo. Eran dos SVG animándose para que se viera uno, y el
+comentario prometía una profundidad que no ocurría.
+
+No lo delataba nada, porque en las costuras las dos se rellenan del **mismo
+color** y el resultado salía bien por casualidad. Se vio al pintarlas de colores
+distintos en la playa.
+
+### El cierre de playa, y por qué el mar es azul
+
+Estaba pintado del rojo del pie para entrar en él sin costura, y no funcionaba:
+una franja roja al pie de la página no se lee como mar, se lee como una franja
+roja.
+
+Los dos colores del agua ya estaban en la paleta: **`crayon` `#7CC4E8` es el
+agua y `miguelito` `#98EDD8` la espuma.** No hizo falta token nuevo ni tocar el
+reparto. El rojo sigue, pero en una ola de 24 px pegada al fondo: ahí hace lo
+único que tenía que hacer, entregarle la página al pie sin una línea recta.
+
+**Las tres alturas están atadas.** La cresta de la arena cae al 40% de su SVG,
+o sea a `0,6 × altura` del borde de abajo. Con la arena a 240 px eso son 144, el
+mar sube 96, y la diferencia —48 px— es **la playa que se ve**. Estaba a 96 px
+de arena: la cresta caía a 58, el mar subía 80, y el agua se tragaba la arena
+entera. Si se cambia una de las tres, hay que rehacer la resta.
+
+### Cómo se verifican los dibujos sin poder ver la pantalla
+
+El panel del navegador no repinta cuando la ventana está detrás, así que las
+capturas salen en blanco y `requestAnimationFrame` no dispara.
+
+La salida es **rasterizar**: se pide el HTML renderizado con `curl`, se extraen
+los `<svg>` —los que de verdad sirve el servidor, no una copia a mano— y se
+montan en una hoja de contacto con `@resvg/resvg-js`. Así se miran los quince
+dibujos de una vez. Fue lo que cazó la berenjena, el globo con red y la ola de
+atrás invisible; ninguna de las tres la habría visto un test.
 
 ## Zod nunca debe ser alcanzable desde un componente de cliente
 

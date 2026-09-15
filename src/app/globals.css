@@ -16,7 +16,7 @@
       texto-suave#6B4A3E  ->  7.26:1  secundario
       acento     #D32027  ->  4.85:1  APENAS pasa AA. Nunca por debajo de 16px
       sangria    #6E1B3E  -> 10.30:1  pasa como texto, aunque se usa decorativo
-      miguelito  #1F91AE  ->  3.40:1  NO PASA como texto normal. Decorativo
+      miguelito  #98EDD8  ->  1.30:1  NUNCA como texto. Solo relleno y filete
 
     sobre coral #FF8A5B
       texto      #2A1410  ->  7.51:1  asi va el titular del hero
@@ -75,7 +75,16 @@
     sigue siendo uno solo.
   */
   --color-chiliguaro: #d32027;
-  --color-miguelito: #1f91ae;
+  /*
+    EL MENTA DE LA BOTELLA, confirmado por el cliente. Estuvo en #1F91AE —un
+    teal azulado— que no es el color del producto: el Miguelito lleva leche
+    condensada y la botella es menta claro. Lo pinta `Botella.tsx` cuando falta
+    la foto, asi que el token equivocado dibujaba un producto que no existe.
+
+    A 1,30:1 sobre crema NO SIRVE PARA TEXTO en ningun tamaño. Es relleno,
+    filete y punto de color; nunca lleva letra encima.
+  */
+  --color-miguelito: #98edd8;
   --color-sangria: #6e1b3e;
 
   /* ---- garabatos de crayon de sus posts ---- */
