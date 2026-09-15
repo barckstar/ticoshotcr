@@ -148,7 +148,7 @@ export function Playa({ a }: { a: ColorUnion }) {
   return (
     <div
       aria-hidden="true"
-      className="relative -mt-px h-48 w-full overflow-hidden sm:h-64"
+      className="relative -mt-px h-56 w-full overflow-hidden sm:h-72"
       style={{ background: colores.crema }}
     >
       {/*
@@ -183,16 +183,17 @@ export function Playa({ a }: { a: ColorUnion }) {
 
         ============ LAS TRES ALTURAS ESTAN ATADAS ============
         La cresta de la arena cae al 40% de este SVG, asi que queda a 0,6 × su
-        altura del borde de abajo. Con la arena a 240px eso son 144; el mar sube
-        96; y la diferencia —48px— es la PLAYA que se ve.
+        altura del borde de abajo. Con la arena a 288px eso son 173; el mar sube
+        112; y la diferencia —61px— es la PLAYA que se ve.
 
-        Estaba a h-24 (96px): la cresta caia a 58 y el mar subia 80, o sea que
-        el agua se tragaba la arena entera y la escena era cielo, una raya y
-        rojo. Si se cambia una de las tres, hay que rehacer la resta.
+        Ha hecho falta subir la escena entera a 288px para que las dos cosas
+        quepan: con 256 el mar se quedaba en una cinta de 25px, que no se lee
+        como mar. Las tres alturas estan atadas por esa resta — si se cambia
+        una, hay que rehacerla.
         =======================================================
       */}
       <svg
-        className="absolute inset-x-0 bottom-0 h-40 w-full sm:h-60"
+        className="absolute inset-x-0 bottom-0 h-56 w-full sm:h-72"
         viewBox="0 0 1440 100"
         preserveAspectRatio="none"
       >
@@ -209,12 +210,12 @@ export function Playa({ a }: { a: ColorUnion }) {
         baja de ahi.
       */}
       <PalmeraPlaya
-        className="absolute bottom-20 left-[6%] w-20 text-menta sm:bottom-28 sm:w-28"
+        className="absolute bottom-24 left-[6%] w-20 text-menta sm:bottom-32 sm:w-28"
         retraso={0}
         duracion={11}
       />
       <PalmeraPlaya
-        className="absolute bottom-24 right-[8%] w-16 text-menta/80 sm:bottom-32 sm:w-24"
+        className="absolute bottom-28 right-[8%] w-16 text-menta/80 sm:bottom-36 sm:w-24"
         retraso={1.4}
         duracion={13}
       />
@@ -232,7 +233,7 @@ export function Playa({ a }: { a: ColorUnion }) {
         Las velocidades tambien van al reves de la intuicion: la de atras, mas
         lenta (30s). Esa diferencia es lo que el ojo lee como profundidad.
       */}
-      <div className="absolute inset-x-0 bottom-0 h-16 overflow-hidden sm:h-24">
+      <div className="absolute inset-x-0 bottom-0 h-20 overflow-hidden sm:h-28">
         <svg
           className="ola absolute inset-0 h-full"
           viewBox="0 0 2880 120"

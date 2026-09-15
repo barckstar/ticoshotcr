@@ -537,10 +537,45 @@ Ahora vive en un solo sitio, `shared/config/sitio.ts`, y resuelve en orden:
 ## SEO y metadatos
 
 - **`negocio.publicado` decide si Google puede indexar.** En `false` el sitio
-  manda `noindex` y el `robots.txt` bloquea a todos. Está así porque el sitio
-  todavía enseña "Consultar precio" y un aviso de "no publicar así": indexar eso
-  deja el fragmento de resultados con los marcadores durante semanas. Compartir
-  por WhatsApp funciona igual — Open Graph no pasa por ahí.
+  manda `noindex` y el `robots.txt` bloquea a los **buscadores**. Está así
+  porque el sitio todavía enseña "Consultar precio" y un aviso de "no publicar
+  así": indexar eso deja el fragmento de resultados con los marcadores durante
+  semanas.
+
+### Bloquear a todos en robots.txt APAGA la vista previa de WhatsApp
+
+El `robots.txt` era una línea — `User-Agent: * / Disallow: /` — y con eso
+compartir el enlace por WhatsApp no mostraba ni título ni imagen.
+
+**`facebookexternalhit` respeta `robots.txt`.** Es el rastreador que arma la
+tarjeta del enlace en WhatsApp *y* en Facebook: prohibido el paso, no lee la
+página, y sin leerla no hay Open Graph que valga por perfectos que estén los
+`<meta>`.
+
+El comentario del archivo afirmaba justo lo contrario —"no impide compartirlo
+por WhatsApp, eso es Open Graph, que no pasa por aquí"— y es lo que dejó pasar
+el fallo. **Open Graph sí pasa por ahí: primero hay que dejar entrar al
+rastreador.**
+
+Lo difícil de este fallo es que **todo lo verificable en el sitio estaba
+bien**: los meta tags presentes y absolutos, la imagen respondiendo 200 con
+`image/jpeg`, sus 1200×630 reales coincidiendo con los declarados. El "no" lo
+daba un archivo distinto del que se estaba mirando.
+
+La solución es que `robots.txt` no es una sola regla: **cada rastreador social
+lleva su propio grupo**, porque un rastreador obedece solo al grupo más
+específico que coincide con su nombre — así el `*` deja de aplicarles. Ninguno
+indexa: solo leen los `<meta>` para dibujar la tarjeta, así que dejarlos pasar
+no toca el motivo por el que se bloqueaba.
+
+Vive en `shared/lib/robots.ts` —`app/robots.ts` es una ruta de Next y no se
+puede cargar desde una prueba de Node— y hay **14 pruebas** que verifican que
+cada social sigue teniendo su grupo con `Allow`. Es exactamente el tipo de
+regresión que nadie nota hasta que alguien comparte el enlace.
+
+> **Al arreglarlo, WhatsApp no cambia solo.** Cachea la vista previa **por
+> URL** y se queda con la fallida. Para comprobarlo hay que compartir una
+> variante que no haya visto — `…/?v=2` — o esperar a que caduque.
 - **Las URL del JSON-LD son ABSOLUTAS.** Lo leen rastreadores que no tienen el
   contexto de la página: una ruta relativa ahí no la resuelve nadie.
 - **`Organization` lleva `logo`** — es lo que Google pone en el panel de
@@ -575,7 +610,7 @@ npm run lint
 
 ## Estado
 
-Build ✓ · 62 pruebas ✓ · lint ✓ · cero violaciones de arquitectura.
+Build ✓ · 76 pruebas ✓ · lint ✓ · cero violaciones de arquitectura.
 
 **No publicar todavía:** faltan precios, reseñas reales y datos del negocio.
 Ver `PENDIENTE.md`.

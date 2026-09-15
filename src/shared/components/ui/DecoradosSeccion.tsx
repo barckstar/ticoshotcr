@@ -128,7 +128,7 @@ const recetas: Record<VarianteDecorado, Pieza[]> = {
     { dibujo: <Chile className="w-full" />, donde: "left-[3%] top-[14%] w-24 sm:w-32", color: "text-acento", animacion: "vaiven", opacidad: TENUE },
     { dibujo: <Lima className="w-full" />, donde: "right-[2%] top-[34%] w-40 sm:w-56", color: "text-menta", animacion: "giro", duracion: 52, retraso: 1.4, opacidad: VIVO },
     { dibujo: <Rayas className="w-full" />, donde: "left-[26%] top-[8%] w-10 sm:w-14", color: "text-menta", animacion: "destello", retraso: 0.8, opacidad: VIVO },
-    { dibujo: <Nube className="w-full" />, donde: "right-[14%] bottom-[8%] hidden w-36 lg:block", color: "text-crayon", animacion: "deriva", retraso: 2, opacidad: VIVO },
+    { dibujo: <Nube className="w-full" />, donde: "left-[2%] bottom-[6%] hidden w-36 lg:block", color: "text-crayon", animacion: "deriva", retraso: 2, opacidad: VIVO },
   ],
 
   nosotros: [
@@ -140,7 +140,7 @@ const recetas: Record<VarianteDecorado, Pieza[]> = {
   eventos: [
     { dibujo: <Pina className="w-full" />, donde: "left-[2%] top-[8%] w-32 sm:w-44", color: "text-menta", animacion: "zoom", duracion: 10, opacidad: VIVO },
     { dibujo: <Palmera className="w-full" />, donde: "right-[2%] bottom-[4%] hidden w-44 lg:block", color: "text-menta", animacion: "vaiven", retraso: 1.8, duracion: 13, opacidad: VIVO },
-    { dibujo: <Lima className="w-full" />, donde: "right-[12%] top-[20%] w-12 sm:w-16", color: "text-menta", animacion: "flotar", retraso: 0.7, opacidad: VIVO },
+    { dibujo: <Lima className="w-full" />, donde: "right-[4%] top-[26%] w-12 sm:w-16", color: "text-menta", animacion: "flotar", retraso: 0.7, opacidad: VIVO },
     { dibujo: <Estrella className="w-full" />, donde: "left-[24%] bottom-[14%] w-4 sm:w-6", color: "text-estrella", animacion: "destello", retraso: 1.2, opacidad: VIVO },
   ],
 
@@ -148,7 +148,7 @@ const recetas: Record<VarianteDecorado, Pieza[]> = {
     { dibujo: <Nube className="w-full" />, donde: "left-[4%] top-[10%] w-32 sm:w-44", color: "text-crayon", animacion: "deriva", opacidad: VIVO },
     { dibujo: <Manzana className="w-full" />, donde: "right-[6%] bottom-[16%] hidden w-16 lg:block", color: "text-sangria", animacion: "zoom", retraso: 1.1, opacidad: TENUE },
     { dibujo: <Estrella className="w-full" />, donde: "right-[16%] top-[16%] w-5 sm:w-7", color: "text-estrella", animacion: "destello", opacidad: VIVO },
-    { dibujo: <Estrella className="w-full" />, donde: "left-[18%] bottom-[20%] w-3 sm:w-4", color: "text-estrella", animacion: "destello", retraso: 1.9, opacidad: VIVO },
+    { dibujo: <Estrella className="w-full" />, donde: "left-[6%] bottom-[26%] w-3 sm:w-4", color: "text-estrella", animacion: "destello", retraso: 1.9, opacidad: VIVO },
   ],
 
   entrega: [
