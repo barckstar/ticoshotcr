@@ -35,9 +35,15 @@ export function Footer() {
               {/*
                 El logo aqui va en BLANCO sobre el rojo: 5.24:1. Es la unica
                 superficie del sitio donde el blanco es legible.
+
+                Y va BLANCO PURO, nunca atenuado. Medido sobre #D32027:
+                /75 da 3.46, /80 da 3.77, /85 da 4.12 y /90 da 4.48 — todos
+                por debajo del 4.5 que pide AA. Solo pasan /95 y /100. En
+                este pie la jerarquia la dan el tamano y el peso, nunca la
+                opacidad.
               */}
               <Logo className="h-24 w-auto text-white" titulo={negocio.nombre} />
-              <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/90">
+              <p className="mt-5 max-w-xs text-sm leading-relaxed text-white">
                 {negocio.tagline} Desde {negocio.ciudad}, {negocio.provincia},
                 hace {anos} años.
               </p>
@@ -52,7 +58,7 @@ export function Footer() {
                   <li key={href}>
                     <a
                       href={href}
-                      className="text-sm text-white/90 underline-offset-4 transition-colors hover:text-white hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                      className="text-sm text-white underline-offset-4 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
                     >
                       {texto}
                     </a>
@@ -71,7 +77,7 @@ export function Footer() {
                     href={enlaceWhatsApp(mensajeConsulta())}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2.5 text-sm text-white/90 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                    className="inline-flex items-center gap-2.5 text-sm text-white underline-offset-4 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
                   >
                     <IconoWhatsApp className="size-5 shrink-0" />
                     {negocio.whatsappVisible}
@@ -82,7 +88,7 @@ export function Footer() {
                     href={negocio.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2.5 text-sm text-white/90 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                    className="inline-flex items-center gap-2.5 text-sm text-white underline-offset-4 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
                   >
                     <IconoInstagram className="size-5 shrink-0" />
                     {negocio.instagramHandle}
@@ -93,7 +99,7 @@ export function Footer() {
                     href={negocio.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2.5 text-sm text-white/90 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                    className="inline-flex items-center gap-2.5 text-sm text-white underline-offset-4 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
                   >
                     <IconoFacebook className="size-5 shrink-0" />
                     Ticoshot CR
@@ -106,7 +112,7 @@ export function Footer() {
                 el hueco: quien busca un dato y no lo encuentra asume que el
                 sitio esta incompleto.
               */}
-              <p className="mt-5 text-sm text-white/80">
+              <p className="mt-5 text-sm text-white">
                 Sin local fijo. Trabajamos por encargo y entregamos.
               </p>
             </div>
@@ -121,7 +127,7 @@ export function Footer() {
               Prohibida la venta a menores de {negocio.edadMinima} años.
               Tomá con moderación. Si vas a manejar, no tomés.
             </p>
-            <p className="mt-4 text-xs text-white/75">
+            <p className="mt-4 text-xs text-white">
               © {new Date().getFullYear()} {negocio.nombre}. {negocio.ciudad},{" "}
               {negocio.provincia}, Costa Rica.
             </p>
